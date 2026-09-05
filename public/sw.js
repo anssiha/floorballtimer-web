@@ -1,10 +1,10 @@
-const CACHE_NAME = 'floorball-timer-v1';
+const CACHE_NAME = 'floorball-timer-v2';
 
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/favicon.svg',
-  '/manifest.webmanifest',
+  './',
+  './index.html',
+  './favicon.svg',
+  './manifest.webmanifest',
 ];
 
 self.addEventListener('install', (event) => {
@@ -61,9 +61,9 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If offline and request is for page navigation, fallback to root index.html
+          // If offline and request is for page navigation, fallback to index.html
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match('./index.html') || caches.match('./');
           }
         });
     })
