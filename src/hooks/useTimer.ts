@@ -25,7 +25,7 @@ export function useTimer() {
 
   // References for animation frame and timing
   const animFrameRef = useRef<number | null>(null);
-  const lastTimestampRef = useRef<number | null>(null);
+  const lastWallClockRef = useRef<number | null>(null);
 
   // Sync state & config changes to localStorage
   useEffect(() => {
@@ -44,23 +44,24 @@ export function useTimer() {
     };
   }, [state.status]);
 
-  // Main loop using requestAnimationFrame
+  // Main loop using requestAnimationFrame with wall-clock time delta
   useEffect(() => {
     if (state.status !== 'RUNNING') {
       if (animFrameRef.current !== null) {
         cancelAnimationFrame(animFrameRef.current);
         animFrameRef.current = null;
       }
-      lastTimestampRef.current = null;
+      lastWallClockRef.current = null;
       return;
     }
 
-    const onTick = (timestamp: number) => {
-      if (lastTimestampRef.current === null) {
-        lastTimestampRef.current = timestamp;
+    const onTick = () => {
+      const now = Date.now();
+      if (lastWallClockRef.current === null) {
+        lastWallClockRef.current = now;
       }
-      const delta = timestamp - lastTimestampRef.current;
-      lastTimestampRef.current = timestamp;
+      const delta = Math.max(0, now - lastWallClockRef.current);
+      lastWallClockRef.current = now;
 
       setState((prev) => {
         if (prev.status !== 'RUNNING') return prev;
