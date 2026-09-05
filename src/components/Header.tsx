@@ -15,7 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="app-header">
       <div className="header-left">
         <div className="app-badge">
-          <span className="sports-ball-icon">🏑</span>
+          <img src="./pwa-192.png" className="app-logo-img" alt="" width="34" height="34" />
           <h1 className="app-title">{t(language, 'appTitle')}</h1>
         </div>
       </div>

@@ -1,9 +1,11 @@
-const CACHE_NAME = 'floorball-timer-v2';
+const CACHE_NAME = 'floorball-timer-v3';
 
 const STATIC_ASSETS = [
   './',
   './index.html',
-  './favicon.svg',
+  './pwa-192.png',
+  './pwa-512.png',
+  './icon.png',
   './manifest.webmanifest',
 ];
 
