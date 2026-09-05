@@ -8,7 +8,7 @@ interface PeriodEndModalProps {
   config: MatchConfig;
   language: Language;
   onAcknowledge: () => void;
-  onProceedNext: () => void;
+  onProceedNext: (skipBreak?: boolean) => void;
 }
 
 export const PeriodEndModal: React.FC<PeriodEndModalProps> = ({
@@ -28,13 +28,14 @@ export const PeriodEndModal: React.FC<PeriodEndModalProps> = ({
     alertTitle = t(language, 'matchEndedAlert');
   }
 
-  let nextActionLabel = config.breakEnabled && config.breakDurationMinutes > 0
-    ? t(language, 'startBreak')
-    : t(language, 'nextPeriod');
+  const isBeforeBreak =
+    config.breakEnabled &&
+    config.breakDurationMinutes > 0 &&
+    state.stage === 'PERIOD' &&
+    state.currentPeriod < config.periodCount;
 
-  if (state.stage === 'BREAK') {
-    nextActionLabel = t(language, 'nextPeriod');
-  } else if (state.stage === 'PERIOD' && state.currentPeriod >= config.periodCount) {
+  let nextActionLabel = t(language, 'nextPeriod');
+  if (state.stage === 'PERIOD' && state.currentPeriod >= config.periodCount) {
     nextActionLabel = config.overtimeEnabled ? t(language, 'startOvertime') : t(language, 'finishMatch');
   }
 
@@ -56,13 +57,32 @@ export const PeriodEndModal: React.FC<PeriodEndModalProps> = ({
         </p>
 
         <div className="alert-buttons">
-          <button
-            type="button"
-            className="alert-btn alert-primary"
-            onClick={onProceedNext}
-          >
-            {nextActionLabel}
-          </button>
+          {isBeforeBreak ? (
+            <>
+              <button
+                type="button"
+                className="alert-btn alert-primary"
+                onClick={() => onProceedNext(false)}
+              >
+                {t(language, 'startBreak')} ({config.breakDurationMinutes} min)
+              </button>
+              <button
+                type="button"
+                className="alert-btn alert-primary"
+                onClick={() => onProceedNext(true)}
+              >
+                {t(language, 'nextPeriod')}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="alert-btn alert-primary"
+              onClick={() => onProceedNext()}
+            >
+              {nextActionLabel}
+            </button>
+          )}
           <button
             type="button"
             className="alert-btn alert-secondary"

@@ -1,15 +1,30 @@
 import type { SavedTimerData, MatchConfig, MatchState, Language } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
 
-const STORAGE_KEY = 'floorball_timer_v2';
+const STORAGE_KEY = 'floorball_timer_v3';
+const LEGACY_STORAGE_KEY_V2 = 'floorball_timer_v2';
 
 export function loadSavedTimerData(): SavedTimerData | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+    let isLegacyV2 = false;
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY_V2);
+      isLegacyV2 = true;
+    }
     if (!raw) return null;
     const parsed: SavedTimerData = JSON.parse(raw);
-    if (parsed && parsed.version === 2) {
+    if (parsed && (parsed.version === 3 || parsed.version === 2)) {
+      if (isLegacyV2 || parsed.version === 2) {
+        parsed.version = 3;
+        parsed.config.breakEnabled = false;
+        if (parsed.state.stage === 'BREAK') {
+          // If was in break, gracefully convert to next period stopped
+          parsed.state.stage = 'PERIOD';
+          parsed.state.status = 'STOPPED';
+        }
+      }
       if (parsed.state.status === 'RUNNING') {
         const now = Date.now();
         const elapsedAway = Math.max(0, now - (parsed.lastUpdated || now));
@@ -80,7 +95,7 @@ export function saveTimerData(
   if (typeof window === 'undefined') return;
   try {
     const data: SavedTimerData = {
-      version: 2,
+      version: 3,
       config,
       state,
       language,

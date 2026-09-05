@@ -9,7 +9,7 @@ interface ControlsProps {
   onToggleTimer: () => void;
   onResetPeriod: () => void;
   onResetMatch: () => void;
-  onProceedNext: () => void;
+  onProceedNext: (skipBreak?: boolean) => void;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -22,6 +22,7 @@ export const Controls: React.FC<ControlsProps> = ({
   onProceedNext,
 }) => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showProceedConfirm, setShowProceedConfirm] = useState(false);
 
   const isRunning = state.status === 'RUNNING';
   const isPeriodEnded = state.status === 'PERIOD_ENDED';
@@ -52,7 +53,12 @@ export const Controls: React.FC<ControlsProps> = ({
 
   const handlePrimaryClick = () => {
     if (isPeriodEnded) {
-      onProceedNext();
+      if (config.breakEnabled && state.stage === 'PERIOD') {
+        // If break is enabled, confirm before starting the break countdown
+        setShowProceedConfirm(true);
+      } else {
+        onProceedNext();
+      }
     } else {
       onToggleTimer();
     }
@@ -122,7 +128,7 @@ export const Controls: React.FC<ControlsProps> = ({
           <button
             type="button"
             className="secondary-btn btn-next"
-            onClick={onProceedNext}
+            onClick={() => setShowProceedConfirm(true)}
           >
             <span>
               {state.stage === 'BREAK'
@@ -176,6 +182,85 @@ export const Controls: React.FC<ControlsProps> = ({
                   type="button"
                   className="btn-cancel"
                   onClick={() => setShowResetConfirm(false)}
+                >
+                  {t(language, 'cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Next Period / Break Confirmation Modal */}
+      {showProceedConfirm && (
+        <div className="modal-backdrop" onClick={() => setShowProceedConfirm(false)} role="dialog" aria-modal="true">
+          <div className="modal-content confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                ⚠️{' '}
+                {config.breakEnabled && state.stage === 'PERIOD'
+                  ? t(language, 'confirmBreakTitle')
+                  : t(language, 'confirmNextPeriodTitle')}
+              </h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowProceedConfirm(false)}
+                aria-label={t(language, 'cancel')}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="confirm-body">
+              <p className="confirm-text">
+                {config.breakEnabled && state.stage === 'PERIOD'
+                  ? t(language, 'confirmBreakText')
+                  : t(language, 'confirmNextPeriodText')}
+              </p>
+              <div className="confirm-actions">
+                {config.breakEnabled && state.stage === 'PERIOD' ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn-danger-confirm"
+                      onClick={() => {
+                        onProceedNext(false);
+                        setShowProceedConfirm(false);
+                      }}
+                    >
+                      {t(language, 'startBreak')} ({config.breakDurationMinutes} min)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-danger-all"
+                      onClick={() => {
+                        onProceedNext(true);
+                        setShowProceedConfirm(false);
+                      }}
+                    >
+                      {t(language, 'skipBreak')}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-danger-confirm"
+                    onClick={() => {
+                      onProceedNext();
+                      setShowProceedConfirm(false);
+                    }}
+                  >
+                    {state.currentPeriod < config.periodCount
+                      ? t(language, 'nextPeriod')
+                      : config.overtimeEnabled
+                      ? t(language, 'startOvertime')
+                      : t(language, 'finishMatch')}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setShowProceedConfirm(false)}
                 >
                   {t(language, 'cancel')}
                 </button>

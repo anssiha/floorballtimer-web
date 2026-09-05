@@ -58,6 +58,11 @@ export const translations = {
     statusPaused: 'Tauolla',
     statusPeriodEnded: 'Päättynyt',
     statusMatchFinished: 'Ottelu päättynyt',
+    confirmNextPeriodTitle: 'Siirrytäänkö seuraavaan erään?',
+    confirmNextPeriodText: 'Haluatko varmasti päättää tämän erän ja siirtyä seuraavaan erään?',
+    confirmBreakTitle: 'Aloitetaanko erätauko?',
+    confirmBreakText: 'Haluatko aloittaa erätauon vai siirtyä suoraan seuraavaan erään?',
+    skipBreak: 'Siirry suoraan seuraavaan erään',
   },
   en: {
     appTitle: 'Floorball Timer',
@@ -116,6 +121,11 @@ export const translations = {
     statusPaused: 'Paused',
     statusPeriodEnded: 'Ended',
     statusMatchFinished: 'Match Finished',
+    confirmNextPeriodTitle: 'Proceed to next period?',
+    confirmNextPeriodText: 'Are you sure you want to end the current period and proceed to the next?',
+    confirmBreakTitle: 'Start intermission break?',
+    confirmBreakText: 'Do you want to start the intermission break or skip directly to the next period?',
+    skipBreak: 'Skip break (Next period)',
   },
 } as const;
 

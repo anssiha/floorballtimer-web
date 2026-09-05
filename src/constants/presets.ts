@@ -7,7 +7,7 @@ export const OVERTIME_DURATION_PRESETS = [5, 10, 20]; // in minutes
 export const DEFAULT_CONFIG: MatchConfig = {
   periodCount: 3,
   periodDurationMinutes: 20,
-  breakEnabled: true,
+  breakEnabled: false,
   breakDurationMinutes: 12,
   overtimeEnabled: false,
   overtimeDurationMinutes: 20,

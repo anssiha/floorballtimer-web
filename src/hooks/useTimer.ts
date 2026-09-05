@@ -248,7 +248,7 @@ export function useTimer() {
   }, []);
 
   // Period Progression
-  const proceedToNextStage = useCallback(() => {
+  const proceedToNextStage = useCallback((skipBreak = false) => {
     triggerButtonHaptic();
     setIsAlertAcknowledged(true);
 
@@ -299,7 +299,7 @@ export function useTimer() {
         }
 
         // Need break before next period?
-        if (config.breakEnabled && config.breakDurationMinutes > 0) {
+        if (!skipBreak && config.breakEnabled && config.breakDurationMinutes > 0) {
           const breakDurationMs = config.breakDurationMinutes * 60 * 1000;
           return {
             status: config.autoStartBreak ? 'RUNNING' : 'STOPPED',
@@ -309,7 +309,7 @@ export function useTimer() {
             remainingMs: breakDurationMs,
           };
         } else {
-          // No break configured or disabled, straight to next period
+          // No break configured, disabled, or explicitly skipped: straight to next period
           const nextPeriod = prev.currentPeriod + 1;
           const durationMs = config.periodDurationMinutes * 60 * 1000;
           const startMs =
