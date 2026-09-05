@@ -1,0 +1,23 @@
+{
+  "name": "Floorball Timer - Salibandykello",
+  "short_name": "FloorballTimer",
+  "description": "Mobile-optimized timer for floorball matches with arena buzzer horn, period progression, and screen wake lock.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0d14",
+  "theme_color": "#0a0d14",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "sports",
+    "utilities"
+  ]
+}
