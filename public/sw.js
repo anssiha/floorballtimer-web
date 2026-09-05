@@ -1,18 +1,22 @@
-const CACHE_NAME = 'floorball-timer-v3';
+const CACHE_NAME = 'floorball-timer-v4';
 
 const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './pwa-192.png',
-  './pwa-512.png',
-  './icon.png',
-  './manifest.webmanifest',
+  '/floorballtimer-web/',
+  '/floorballtimer-web/index.html',
+  '/floorballtimer-web/pwa-192.png',
+  '/floorballtimer-web/pwa-512.png',
+  '/floorballtimer-web/icon.png',
+  '/floorballtimer-web/manifest.json',
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.all(
+        STATIC_ASSETS.map((url) =>
+          cache.add(url).catch((err) => console.warn('PWA: Failed to cache asset:', url, err))
+        )
+      );
     }).then(() => self.skipWaiting())
   );
 });
@@ -63,9 +67,9 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If offline and request is for page navigation, fallback to index.html
+          // If offline and request is for page navigation, fallback to cached index.html
           if (event.request.mode === 'navigate') {
-            return caches.match('./index.html') || caches.match('./');
+            return caches.match('/floorballtimer-web/index.html') || caches.match('/floorballtimer-web/');
           }
         });
     })
