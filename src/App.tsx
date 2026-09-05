@@ -44,9 +44,6 @@ export const App: React.FC = () => {
     <div className="app-container">
       <Header
         language={language}
-        onLanguageChange={setLanguage}
-        soundEnabled={config.soundEnabled}
-        onToggleSound={() => updateConfig({ soundEnabled: !config.soundEnabled })}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
       />
 

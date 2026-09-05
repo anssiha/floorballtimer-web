@@ -84,6 +84,25 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
     });
   }
 
+  let statusText = '';
+  switch (state.status) {
+    case 'STOPPED':
+      statusText = t(language, 'statusStopped');
+      break;
+    case 'RUNNING':
+      statusText = t(language, 'statusRunning');
+      break;
+    case 'PAUSED':
+      statusText = t(language, 'statusPaused');
+      break;
+    case 'PERIOD_ENDED':
+      statusText = t(language, 'statusPeriodEnded');
+      break;
+    case 'MATCH_FINISHED':
+      statusText = t(language, 'statusMatchFinished');
+      break;
+  }
+
   return (
     <section className={`timer-display-container ${isFlashing ? 'flashing-alert' : ''}`}>
       {/* Stage Badge & Status */}
@@ -97,7 +116,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
 
         <div className={`timer-state-pill state-${state.status.toLowerCase()}`}>
           {state.status === 'RUNNING' && <span className="pulsing-dot"></span>}
-          <span>{state.status}</span>
+          <span>{statusText}</span>
         </div>
       </div>
 

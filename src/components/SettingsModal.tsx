@@ -322,7 +322,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="btn-danger-reset"
               onClick={handleResetConfirm}
             >
-              ⚠️ {t(language, 'reset')} ({t(language, 'matchFinished')})
+              ⚠️ {t(language, 'resetMatch')}
             </button>
           </div>
         </div>

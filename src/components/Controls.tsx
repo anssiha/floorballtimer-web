@@ -150,6 +150,7 @@ export const Controls: React.FC<ControlsProps> = ({
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setShowResetConfirm(false)}
+                aria-label={t(language, 'cancel')}
               >
                 ✕
               </button>
@@ -162,14 +163,14 @@ export const Controls: React.FC<ControlsProps> = ({
                   className="btn-danger-confirm"
                   onClick={handleConfirmResetPeriod}
                 >
-                  {t(language, 'reset')} ({t(language, 'period')})
+                  {t(language, 'resetPeriod')}
                 </button>
                 <button
                   type="button"
                   className="btn-danger-all"
                   onClick={handleConfirmResetMatch}
                 >
-                  {t(language, 'reset')} ({t(language, 'appTitle')})
+                  {t(language, 'resetMatch')}
                 </button>
                 <button
                   type="button"

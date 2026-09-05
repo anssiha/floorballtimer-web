@@ -51,6 +51,13 @@ export const translations = {
     resetConfirm: 'Haluatko varmasti nollata ottelukellon?',
     resetPeriodConfirm: 'Haluatko varmasti nollata tämän erän?',
     resetMatchConfirm: 'Haluatko varmasti nollata koko ottelun?',
+    resetPeriod: 'Nollaa tämä erä',
+    resetMatch: 'Nollaa koko ottelu',
+    statusStopped: 'Pysäytetty',
+    statusRunning: 'Käynnissä',
+    statusPaused: 'Tauolla',
+    statusPeriodEnded: 'Päättynyt',
+    statusMatchFinished: 'Ottelu päättynyt',
   },
   en: {
     appTitle: 'Floorball Timer',
@@ -102,6 +109,13 @@ export const translations = {
     resetConfirm: 'Are you sure you want to reset the match timer?',
     resetPeriodConfirm: 'Are you sure you want to reset this period?',
     resetMatchConfirm: 'Are you sure you want to reset the entire match?',
+    resetPeriod: 'Reset this period',
+    resetMatch: 'Reset entire match',
+    statusStopped: 'Stopped',
+    statusRunning: 'Running',
+    statusPaused: 'Paused',
+    statusPeriodEnded: 'Ended',
+    statusMatchFinished: 'Match Finished',
   },
 } as const;
 

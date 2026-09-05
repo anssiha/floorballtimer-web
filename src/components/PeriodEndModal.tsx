@@ -28,11 +28,14 @@ export const PeriodEndModal: React.FC<PeriodEndModalProps> = ({
     alertTitle = t(language, 'matchEndedAlert');
   }
 
-  let nextActionLabel = t(language, 'startBreak');
+  let nextActionLabel = config.breakEnabled && config.breakDurationMinutes > 0
+    ? t(language, 'startBreak')
+    : t(language, 'nextPeriod');
+
   if (state.stage === 'BREAK') {
     nextActionLabel = t(language, 'nextPeriod');
   } else if (state.stage === 'PERIOD' && state.currentPeriod >= config.periodCount) {
-    nextActionLabel = config.overtimeEnabled ? t(language, 'overtime') : t(language, 'finishMatch');
+    nextActionLabel = config.overtimeEnabled ? t(language, 'startOvertime') : t(language, 'finishMatch');
   }
 
   return (
