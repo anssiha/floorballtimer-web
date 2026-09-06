@@ -1,5 +1,8 @@
 # 🏑 Salibandykello – Floorball Match Timer
 
+> **🚀 Avaa sovellus verkossa / Live App:**  
+> 👉 **[Pelikello](https://anssiha.github.io/floorballtimer-web/)**
+
 Nykyaikainen, selkeä ja responsiivinen salibandyn ottelukello ja tulostaulukello, joka toimii suoraan selaimessa ja asennettavana PWA-sovelluksena (Progressive Web App) puhelimella, tabletilla sekä tietokoneella.
 
 ---
