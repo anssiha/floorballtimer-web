@@ -39,6 +39,47 @@ export const PeriodEndModal: React.FC<PeriodEndModalProps> = ({
     nextActionLabel = config.overtimeEnabled ? t(language, 'startOvertime') : t(language, 'finishMatch');
   }
 
+  const renderTeamSaves = (teamKey: 'home' | 'away') => {
+    if (!state.goalieSaves) return null;
+    const teamData = state.goalieSaves[teamKey];
+    const isOvertime = state.stage === 'OVERTIME';
+    const period = state.currentPeriod;
+
+    // Show goalies who played in this period: active goalie or those with saves > 0 in this period
+    const relevantGoalies = teamData.goalies.filter((g) => {
+      const s = isOvertime ? (g.savesOvertime || 0) : (g.savesPerPeriod?.[period] || 0);
+      return s > 0 || g.id === teamData.activeGoalieId;
+    });
+
+    const teamPeriodTotal = teamData.goalies.reduce((acc, g) => {
+      const s = isOvertime ? (g.savesOvertime || 0) : (g.savesPerPeriod?.[period] || 0);
+      return acc + s;
+    }, 0);
+
+    return (
+      <div className={`saves-summary-col saves-team-${teamKey}`}>
+        <span className="summary-team-label">{teamData.teamName || t(language, teamKey)}</span>
+        <div className="goalie-breakdown-list">
+          {relevantGoalies.map((g) => {
+            const s = isOvertime ? (g.savesOvertime || 0) : (g.savesPerPeriod?.[period] || 0);
+            return (
+              <div key={g.id} className="goalie-breakdown-item">
+                <span className="goalie-tag">{g.nameOrNumber}</span>
+                <span className="goalie-saves-count">{s}</span>
+              </div>
+            );
+          })}
+        </div>
+        {relevantGoalies.length > 1 && (
+          <div className="goalie-breakdown-subtotal">
+            <span>{t(language, 'savesTotal')}:</span>
+            <span className="total-val">{teamPeriodTotal}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="period-alert-overlay" role="alertdialog" aria-modal="true">
       <div className="period-alert-card flashing-border">
@@ -59,27 +100,13 @@ export const PeriodEndModal: React.FC<PeriodEndModalProps> = ({
         {/* Goalie saves summary if tracking is enabled */}
         {config.trackGoalieSaves && state.goalieSaves && (
           <div className="period-saves-summary">
-            <h4 className="saves-summary-heading">{t(language, 'savesSummaryTitle')} ({t(language, 'savesPeriod')} {state.stage === 'OVERTIME' ? 'JA' : state.currentPeriod})</h4>
+            <h4 className="saves-summary-heading">
+              {t(language, 'savesSummaryTitle')} ({t(language, 'savesPeriod')} {state.stage === 'OVERTIME' ? 'JA' : state.currentPeriod})
+            </h4>
             <div className="saves-summary-row">
-              <div className="saves-summary-col">
-                <span className="summary-team-label">{state.goalieSaves.home.teamName || t(language, 'home')}</span>
-                <span className="summary-team-count">
-                  {state.stage === 'OVERTIME'
-                    ? state.goalieSaves.home.goalies.reduce((s, g) => s + (g.savesOvertime || 0), 0)
-                    : state.goalieSaves.home.goalies.reduce((s, g) => s + (g.savesPerPeriod?.[state.currentPeriod] || 0), 0)
-                  }
-                </span>
-              </div>
-              <div className="saves-summary-divider">/</div>
-              <div className="saves-summary-col">
-                <span className="summary-team-label">{state.goalieSaves.away.teamName || t(language, 'away')}</span>
-                <span className="summary-team-count">
-                  {state.stage === 'OVERTIME'
-                    ? state.goalieSaves.away.goalies.reduce((s, g) => s + (g.savesOvertime || 0), 0)
-                    : state.goalieSaves.away.goalies.reduce((s, g) => s + (g.savesPerPeriod?.[state.currentPeriod] || 0), 0)
-                  }
-                </span>
-              </div>
+              {renderTeamSaves('home')}
+              <div className="saves-summary-divider">vs</div>
+              {renderTeamSaves('away')}
             </div>
           </div>
         )}
