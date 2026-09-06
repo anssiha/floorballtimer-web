@@ -14,7 +14,7 @@ Nykyaikainen, selkeä ja responsiivinen salibandyn ottelukello ja tulostaulukell
 - **Configurable Match Formats:** 1 to 3 periods, standard presets (10, 15, 20 min) or custom duration, optional intermission breaks, and overtime.
 - **Timer Direction:** Count-up (`00:00` → `20:00`) or count-down (`20:00` → `00:00`).
 - **Realistic Arena Horn:** Web Audio API generated stadium buzzer horn — no external sound files required.
-- **Screen Wake Lock:** Prevents screen dimming and sleeping while the timer is running.
+- **Screen Wake Lock:** Prevents screen dimming and sleeping while running and during play stoppages (with 15-minute inactivity safety).
 - **Manual Time Adjustment:** Tap digits directly to fine-tune seconds and minutes on the fly.
 - **Quick Controls:** Extra-large bench-friendly buttons and Spacebar shortcut for Start/Pause.
 - **Persistent State:** Saves ongoing match state automatically to `localStorage` (safely resumes even after page reload).
@@ -41,7 +41,7 @@ Kello on optimoitu sekä vaakasuuntaisille että pystysuuntaisille näytöille j
 | **Ajan suunta** | Nouseva aika (`00:00` alkaen kohti erän päättymistä) tai perinteinen laskeva aika (`20:00` kohti nollaa). |
 | **Hallisumutorvi** | Autenttinen monitaajuuksinen areenatorvi, joka soi erän ja ottelun päättyessä. Toteutettu suoraan Web Audio API:lla ilman raskaita äänitiedostoja. |
 | **Ajan pikasäätö** | Aikanäyttöä napauttamalla aukeaa säätöikkuna, josta aikaa voi korjata välittömästi (+/-1 min, +/-10 s, +/-1 s tai suora syöttö). |
-| **Screen Wake Lock** | Pitää mobiililaitteen tai tietokoneen näytön aktiivisena kellon käydessä, jottei näyttö sammu kesken ottelun. |
+| **Screen Wake Lock** | Pitää mobiililaitteen tai tietokoneen näytön aktiivisena kellon käydessä sekä pelikatkoilla (tauolla), jottei näyttö sammu kesken erän. Sisältää 15 minuutin suojakatkaisun akun säästämiseksi. |
 | **Välilyöntituki** | Välilyöntiä painamalla kello käynnistyy ja pysähtyy nopeasti ilman hiirtä. |
 | **Värinäpalaute (Haptics)** | Värinäpalaute erän päättymisestä ja painalluksista tuetuilla mobiililaitteilla. |
 | **Tilan tallennus** | Pelitilanne ja asetukset tallentuvat automaattisesti selaimeen. Vahingossa suljettu tai päivitetty sivu palauttaa käynnissä olevan ajan. |
@@ -83,6 +83,7 @@ Paina oikeassa yläkulmassa olevaa rataskuvaketta (**⚙️ Asetukset**). Asetuk
 - **Ajan suunta:** Nouseva (`00:00 ->`) tai Laskeva (`-> 00:00`).
 - **Sumutorvi / Ääni:** Kytke äänimerkki päälle/pois sekä testaa summeria painikkeesta **📢 Testaa sumutorvea**.
 - **Värinäpalaute:** Kytke haptinen palaute päälle tai pois.
+- **Näyttö päällä pelikatkoilla:** Estää näytön sammumisen myös pelikatkoilla (tauolla).
 
 ### 5. Erän tai ottelun nollaus
 Pääpainikkeen vieressä on nollauspainike (**Nollaa**):

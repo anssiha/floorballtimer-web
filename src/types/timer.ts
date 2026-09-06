@@ -17,6 +17,7 @@ export interface MatchConfig {
   soundEnabled: boolean;
   hapticsEnabled: boolean;
   autoStartBreak: boolean;
+  keepAwakeOnPause: boolean;
 }
 
 export interface MatchState {

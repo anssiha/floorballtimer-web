@@ -32,17 +32,35 @@ export function useTimer() {
     saveTimerData(config, state, language);
   }, [config, state, language]);
 
-  // Handle Wake Lock based on running status
+  // Handle Screen Wake Lock with a 15-minute safety timeout during pause
   useEffect(() => {
-    if (state.status === 'RUNNING') {
+    let safetyTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const isPausedStage = state.status === 'PAUSED' || state.status === 'PERIOD_ENDED';
+    const shouldKeepAwake =
+      state.status === 'RUNNING' ||
+      (isPausedStage && config.keepAwakeOnPause);
+
+    if (shouldKeepAwake) {
       requestWakeLock();
+
+      // If paused or period ended, auto-release after 15 minutes of inactivity to save battery
+      if (isPausedStage) {
+        safetyTimer = setTimeout(() => {
+          releaseWakeLock();
+        }, 15 * 60 * 1000);
+      }
     } else {
       releaseWakeLock();
     }
+
     return () => {
+      if (safetyTimer) {
+        clearTimeout(safetyTimer);
+      }
       releaseWakeLock();
     };
-  }, [state.status]);
+  }, [state.status, config.keepAwakeOnPause]);
 
   // Main loop using requestAnimationFrame with wall-clock time delta
   useEffect(() => {

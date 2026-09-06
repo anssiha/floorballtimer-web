@@ -16,6 +16,9 @@ export function loadSavedTimerData(): SavedTimerData | null {
     if (!raw) return null;
     const parsed: SavedTimerData = JSON.parse(raw);
     if (parsed && (parsed.version === 3 || parsed.version === 2)) {
+      if (parsed.config && parsed.config.keepAwakeOnPause === undefined) {
+        parsed.config.keepAwakeOnPause = true;
+      }
       if (isLegacyV2 || parsed.version === 2) {
         parsed.version = 3;
         parsed.config.breakEnabled = false;

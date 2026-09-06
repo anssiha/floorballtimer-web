@@ -15,4 +15,5 @@ export const DEFAULT_CONFIG: MatchConfig = {
   soundEnabled: true,
   hapticsEnabled: true,
   autoStartBreak: false,
+  keepAwakeOnPause: true,
 };
