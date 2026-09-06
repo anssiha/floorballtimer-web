@@ -970,53 +970,215 @@ input:checked + .slider:before {
   color: var(--text-main);
 }
 
-/* Responsive Landscape / Tablet Scoreboard Mode */
-@media (orientation: landscape) and (max-height: 550px) {
+/* Responsive Landscape / Mobile Horizontal Mode */
+@media (orientation: landscape) and (max-height: 650px) {
   .app-container {
-    padding: 6px 12px;
+    padding: env(safe-area-inset-top, 4px) env(safe-area-inset-right, 14px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 14px);
+    max-width: 100%;
+    height: 100%;
   }
 
   .app-header {
-    padding: 4px 0 6px 0;
+    padding: 2px 0 4px 0;
+    gap: 6px;
   }
 
+  .app-badge {
+    gap: 6px;
+  }
+
+  .app-logo-img {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .app-title {
+    font-size: 0.95rem;
+  }
+
+  .settings-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* 2-Column Grid: Left side displays (Timer + Goalie cards), Right side controls */
   .main-content {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 16px;
-    padding: 6px 0 0 0;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    grid-template-rows: 1fr auto;
+    gap: 8px 12px;
+    padding: 4px 0 0 0;
+    height: calc(100% - 40px);
+    min-height: 0;
+    overflow: hidden;
   }
 
+  /* Left Column Top: Timer Display */
   .timer-display-container {
-    flex: 1.4;
+    grid-column: 1;
+    grid-row: 1;
     margin-bottom: 0;
-    padding: 10px 14px;
+    padding: 6px 12px;
     justify-content: space-around;
+    min-height: 0;
+    border-radius: var(--radius-md);
   }
 
   .timer-numbers {
-    font-size: clamp(3.8rem, 15vw, 6rem);
+    font-size: clamp(2.6rem, 9.5vw, 4.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
   }
 
+  .period-progress-bar {
+    margin-bottom: 2px;
+    height: 3px;
+  }
+
+  .timer-subtitle-row {
+    margin-top: 2px;
+  }
+
+  .edit-hint {
+    display: none;
+  }
+
+  /* Left Column Bottom: Goalie Saves Cards */
+  .goalie-saves-container {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 8px;
+  }
+
+  .goalie-team-card {
+    padding: 4px 8px;
+    gap: 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .goalie-card-header {
+    gap: 4px;
+  }
+
+  .goalie-team-title {
+    font-size: 0.72rem;
+  }
+
+  .goalie-select-chip {
+    padding: 2px 6px;
+    font-size: 0.68rem;
+  }
+
+  .goalie-action-row {
+    height: 40px;
+    gap: 4px;
+  }
+
+  .btn-save-minus {
+    width: 32px;
+    font-size: 1.1rem;
+  }
+
+  .btn-save-plus-main {
+    padding: 2px 8px;
+  }
+
+  .save-plus-icon {
+    font-size: 0.72rem;
+  }
+
+  .save-period-num {
+    font-size: 1.3rem;
+  }
+
+  .save-period-label {
+    font-size: 0.65rem;
+  }
+
+  .save-total-label {
+    font-size: 0.62rem;
+  }
+
+  /* Right Column: Controls Spanning Full Height */
   .controls-container {
-    flex: 1;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
+    height: 100%;
+    min-height: 0;
+    gap: 6px;
   }
 
   .main-action-btn {
-    height: 86px;
-    min-height: 86px;
-    font-size: 1.5rem;
-    border-radius: 18px;
+    flex: 1;
+    height: auto;
+    min-height: 58px;
+    max-height: none;
+    font-size: clamp(1.2rem, 3.2vw, 1.55rem);
+    border-radius: var(--radius-md);
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .main-action-btn .btn-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .secondary-controls {
+    display: flex;
+    gap: 6px;
   }
 
   .secondary-btn {
-    height: 42px;
+    height: 38px;
+    font-size: 0.82rem;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  .stage-selectors {
+    gap: 4px;
+    padding-bottom: 0;
   }
 
   .stage-chip {
-    padding: 6px 4px;
-    font-size: 0.75rem;
+    padding: 5px 6px;
+    font-size: 0.72rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Modals in landscape */
+  .period-alert-card {
+    padding: 16px 20px;
+    max-height: 94vh;
+    overflow-y: auto;
+  }
+
+  .buzz-icon {
+    font-size: 2.2rem;
+  }
+
+  .alert-title {
+    font-size: 1.25rem;
+    margin: 4px 0;
+  }
+
+  .period-saves-summary {
+    margin: 6px 0;
+    padding: 6px 10px;
+  }
+
+  .alert-btn {
+    height: 40px;
+    font-size: 0.88rem;
   }
 }
 
