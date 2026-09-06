@@ -56,6 +56,34 @@ export const PeriodEndModal: React.FC<PeriodEndModalProps> = ({
             : t(language, 'overtime')}
         </p>
 
+        {/* Goalie saves summary if tracking is enabled */}
+        {config.trackGoalieSaves && state.goalieSaves && (
+          <div className="period-saves-summary">
+            <h4 className="saves-summary-heading">{t(language, 'savesSummaryTitle')} ({t(language, 'savesPeriod')} {state.stage === 'OVERTIME' ? 'JA' : state.currentPeriod})</h4>
+            <div className="saves-summary-row">
+              <div className="saves-summary-col">
+                <span className="summary-team-label">{state.goalieSaves.home.teamName || t(language, 'home')}</span>
+                <span className="summary-team-count">
+                  {state.stage === 'OVERTIME'
+                    ? state.goalieSaves.home.goalies.reduce((s, g) => s + (g.savesOvertime || 0), 0)
+                    : state.goalieSaves.home.goalies.reduce((s, g) => s + (g.savesPerPeriod?.[state.currentPeriod] || 0), 0)
+                  }
+                </span>
+              </div>
+              <div className="saves-summary-divider">/</div>
+              <div className="saves-summary-col">
+                <span className="summary-team-label">{state.goalieSaves.away.teamName || t(language, 'away')}</span>
+                <span className="summary-team-count">
+                  {state.stage === 'OVERTIME'
+                    ? state.goalieSaves.away.goalies.reduce((s, g) => s + (g.savesOvertime || 0), 0)
+                    : state.goalieSaves.away.goalies.reduce((s, g) => s + (g.savesPerPeriod?.[state.currentPeriod] || 0), 0)
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="alert-buttons">
           {isBeforeBreak ? (
             <>

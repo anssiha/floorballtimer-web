@@ -1075,3 +1075,373 @@ input:checked + .slider:before {
   color: var(--text-muted);
 }
 
+/* ==========================================================================
+   Goalie Saves Tracker (Torjuntalaskuri)
+   ========================================================================== */
+.goalie-saves-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 540px;
+  margin: 6px auto;
+  padding: 0 4px;
+}
+
+.goalie-team-card {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease;
+}
+
+.goalie-card-home {
+  border-color: rgba(0, 229, 255, 0.25);
+}
+
+.goalie-card-away {
+  border-color: rgba(255, 179, 0, 0.25);
+}
+
+.goalie-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.goalie-team-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.goalie-select-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.goalie-select-chip:hover {
+  background: var(--bg-surface-card);
+  border-color: var(--text-muted);
+}
+
+.chip-icon {
+  font-size: 0.82rem;
+}
+
+.chip-name {
+  max-width: 75px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-arrow {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.goalie-action-row {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  height: 52px;
+}
+
+.btn-save-minus {
+  width: 38px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 1.3rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.btn-save-minus:hover:not(:disabled) {
+  background: rgba(255, 51, 75, 0.15);
+  color: #ff5263;
+  border-color: rgba(255, 51, 75, 0.3);
+}
+
+.btn-save-minus:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.btn-save-minus:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.btn-save-plus-main {
+  flex: 1;
+  background: linear-gradient(135deg, #182836 0%, #121c27 100%);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.goalie-card-away .btn-save-plus-main {
+  background: linear-gradient(135deg, #2b2014 0%, #1c150c 100%);
+  border-color: rgba(255, 179, 0, 0.3);
+}
+
+.btn-save-plus-main:hover {
+  filter: brightness(1.12);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-save-plus-main:active {
+  transform: scale(0.97);
+  filter: brightness(1.25);
+}
+
+.save-count-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.save-plus-icon {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--accent-green);
+}
+
+.save-period-num {
+  font-size: 1.55rem;
+  font-weight: 900;
+  font-family: var(--font-timer);
+  line-height: 1;
+  color: #fff;
+}
+
+.save-meta-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  line-height: 1.15;
+}
+
+.save-period-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.save-total-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+/* Goalie Change Modal */
+.goalie-modal {
+  max-width: 360px;
+}
+
+.goalie-modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goalie-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.goalie-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.goalie-item-btn:hover {
+  background: var(--bg-surface-card);
+  border-color: var(--text-muted);
+}
+
+.goalie-item-btn.active {
+  border-color: var(--accent-orange);
+  background: rgba(255, 87, 34, 0.12);
+  color: #fff;
+}
+
+.goalie-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.goalie-badge-saves {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.active-tag {
+  color: var(--accent-orange);
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.add-goalie-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.add-goalie-row {
+  display: flex;
+  gap: 8px;
+}
+
+.add-goalie-row input {
+  flex: 1;
+  height: 42px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.add-goalie-row input:focus {
+  outline: none;
+  border-color: var(--accent-orange);
+}
+
+.btn-add-goalie {
+  width: 42px;
+  height: 42px;
+  background: var(--accent-orange);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+}
+
+.btn-add-goalie:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+
+.btn-add-goalie:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Period End Goalie Saves Summary */
+.period-saves-summary {
+  margin: 10px 0;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
+.saves-summary-heading {
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.saves-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.saves-summary-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.summary-team-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.summary-team-count {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+  font-family: var(--font-timer);
+  line-height: 1;
+}
+
+.saves-summary-divider {
+  font-size: 1.3rem;
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+

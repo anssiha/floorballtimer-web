@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { MatchConfig, MatchState, Language, StageType } from '../types/timer';
+import type { MatchConfig, MatchState, Language, StageType, GoalieStats } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
 import {
   loadSavedTimerData,
@@ -231,10 +231,29 @@ export function useTimer() {
         }
       }
 
+      // Reset saves for this period if any
+      const newHomeGoalies = prev.goalieSaves?.home?.goalies?.map((g) => ({
+        ...g,
+        savesPerPeriod: { ...g.savesPerPeriod, [prev.currentPeriod]: 0 },
+        savesOvertime: prev.stage === 'OVERTIME' ? 0 : (g.savesOvertime || 0),
+      })) || [];
+
+      const newAwayGoalies = prev.goalieSaves?.away?.goalies?.map((g) => ({
+        ...g,
+        savesPerPeriod: { ...g.savesPerPeriod, [prev.currentPeriod]: 0 },
+        savesOvertime: prev.stage === 'OVERTIME' ? 0 : (g.savesOvertime || 0),
+      })) || [];
+
       return {
         ...prev,
         status: 'STOPPED',
         remainingMs: resetMs,
+        goalieSaves: prev.goalieSaves
+          ? {
+              home: { ...prev.goalieSaves.home, goalies: newHomeGoalies },
+              away: { ...prev.goalieSaves.away, goalies: newAwayGoalies },
+            }
+          : prev.goalieSaves,
       };
     });
   }, [
@@ -281,6 +300,7 @@ export function useTimer() {
             : durationMs;
 
         return {
+          ...prev,
           status: 'STOPPED',
           stage: 'PERIOD',
           currentPeriod: nextPeriod,
@@ -302,6 +322,7 @@ export function useTimer() {
                 : otDurationMs;
 
             return {
+              ...prev,
               status: 'STOPPED',
               stage: 'OVERTIME',
               currentPeriod: prev.currentPeriod,
@@ -320,6 +341,7 @@ export function useTimer() {
         if (!skipBreak && config.breakEnabled && config.breakDurationMinutes > 0) {
           const breakDurationMs = config.breakDurationMinutes * 60 * 1000;
           return {
+            ...prev,
             status: config.autoStartBreak ? 'RUNNING' : 'STOPPED',
             stage: 'BREAK',
             currentPeriod: prev.currentPeriod,
@@ -336,6 +358,7 @@ export function useTimer() {
               : durationMs;
 
           return {
+            ...prev,
             status: 'STOPPED',
             stage: 'PERIOD',
             currentPeriod: nextPeriod,
@@ -382,13 +405,14 @@ export function useTimer() {
       }
 
       const durationMs = durationMinutes * 60 * 1000;
-      setState({
+      setState((prev) => ({
+        ...prev,
         status: 'STOPPED',
         stage,
         currentPeriod: periodNumber,
         totalDurationMs: durationMs,
         remainingMs: startMs,
-      });
+      }));
     },
     [config]
   );
@@ -433,6 +457,151 @@ export function useTimer() {
     setIsAlertAcknowledged(true);
   }, []);
 
+  // Goalie save actions
+  const addGoalieSave = useCallback((team: 'home' | 'away') => {
+    triggerButtonHaptic();
+    setState((prev) => {
+      if (!prev.goalieSaves) return prev;
+      const currentTeamData = prev.goalieSaves[team];
+      const activeId = currentTeamData.activeGoalieId;
+      const period = prev.currentPeriod;
+      const isOvertime = prev.stage === 'OVERTIME';
+
+      const updatedGoalies = currentTeamData.goalies.map((goalie) => {
+        if (goalie.id !== activeId) return goalie;
+
+        if (isOvertime) {
+          return {
+            ...goalie,
+            savesOvertime: (goalie.savesOvertime || 0) + 1,
+          };
+        }
+
+        const currentPeriodSaves = goalie.savesPerPeriod?.[period] || 0;
+        return {
+          ...goalie,
+          savesPerPeriod: {
+            ...goalie.savesPerPeriod,
+            [period]: currentPeriodSaves + 1,
+          },
+        };
+      });
+
+      return {
+        ...prev,
+        goalieSaves: {
+          ...prev.goalieSaves,
+          [team]: {
+            ...currentTeamData,
+            goalies: updatedGoalies,
+          },
+        },
+      };
+    });
+  }, []);
+
+  const removeGoalieSave = useCallback((team: 'home' | 'away') => {
+    triggerButtonHaptic();
+    setState((prev) => {
+      if (!prev.goalieSaves) return prev;
+      const currentTeamData = prev.goalieSaves[team];
+      const activeId = currentTeamData.activeGoalieId;
+      const period = prev.currentPeriod;
+      const isOvertime = prev.stage === 'OVERTIME';
+
+      const updatedGoalies = currentTeamData.goalies.map((goalie) => {
+        if (goalie.id !== activeId) return goalie;
+
+        if (isOvertime) {
+          const currentOt = goalie.savesOvertime || 0;
+          return {
+            ...goalie,
+            savesOvertime: Math.max(0, currentOt - 1),
+          };
+        }
+
+        const currentPeriodSaves = goalie.savesPerPeriod?.[period] || 0;
+        return {
+          ...goalie,
+          savesPerPeriod: {
+            ...goalie.savesPerPeriod,
+            [period]: Math.max(0, currentPeriodSaves - 1),
+          },
+        };
+      });
+
+      return {
+        ...prev,
+        goalieSaves: {
+          ...prev.goalieSaves,
+          [team]: {
+            ...currentTeamData,
+            goalies: updatedGoalies,
+          },
+        },
+      };
+    });
+  }, []);
+
+  const switchGoalie = useCallback((team: 'home' | 'away', goalieId: string) => {
+    triggerButtonHaptic();
+    setState((prev) => {
+      if (!prev.goalieSaves) return prev;
+      return {
+        ...prev,
+        goalieSaves: {
+          ...prev.goalieSaves,
+          [team]: {
+            ...prev.goalieSaves[team],
+            activeGoalieId: goalieId,
+          },
+        },
+      };
+    });
+  }, []);
+
+  const addGoalie = useCallback((team: 'home' | 'away', nameOrNumber: string) => {
+    triggerButtonHaptic();
+    const newId = `${team}_${Date.now()}`;
+    const newGoalie: GoalieStats = {
+      id: newId,
+      nameOrNumber: nameOrNumber.trim() || `#${newId.slice(-2)}`,
+      savesPerPeriod: { 1: 0, 2: 0, 3: 0 },
+      savesOvertime: 0,
+    };
+
+    setState((prev) => {
+      if (!prev.goalieSaves) return prev;
+      return {
+        ...prev,
+        goalieSaves: {
+          ...prev.goalieSaves,
+          [team]: {
+            ...prev.goalieSaves[team],
+            activeGoalieId: newId,
+            goalies: [...prev.goalieSaves[team].goalies, newGoalie],
+          },
+        },
+      };
+    });
+  }, []);
+
+  const updateTeamName = useCallback((team: 'home' | 'away', name: string) => {
+    setState((prev) => {
+      if (!prev.goalieSaves) return prev;
+      return {
+        ...prev,
+        goalieSaves: {
+          ...prev.goalieSaves,
+          [team]: {
+            ...prev.goalieSaves[team],
+            teamName: name.trim() || (team === 'home' ? 'Koti' : 'Vieras'),
+          },
+        },
+      };
+    });
+  }, []);
+
   return {
     state,
     config,
@@ -449,5 +618,10 @@ export function useTimer() {
     updateConfig,
     setLanguage,
     acknowledgeAlert,
+    addGoalieSave,
+    removeGoalieSave,
+    switchGoalie,
+    addGoalie,
+    updateTeamName,
   };
 }

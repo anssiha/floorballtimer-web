@@ -18,6 +18,25 @@ export interface MatchConfig {
   hapticsEnabled: boolean;
   autoStartBreak: boolean;
   keepAwakeOnPause: boolean;
+  trackGoalieSaves: boolean;
+}
+
+export interface GoalieStats {
+  id: string;
+  nameOrNumber: string; // e.g. "#1"
+  savesPerPeriod: Record<number, number>;
+  savesOvertime?: number;
+}
+
+export interface TeamGoalieData {
+  teamName: string;
+  activeGoalieId: string;
+  goalies: GoalieStats[];
+}
+
+export interface GoalieSavesState {
+  home: TeamGoalieData;
+  away: TeamGoalieData;
 }
 
 export interface MatchState {
@@ -26,6 +45,7 @@ export interface MatchState {
   currentPeriod: number; // 1, 2, 3
   remainingMs: number;
   totalDurationMs: number;
+  goalieSaves: GoalieSavesState;
 }
 
 export interface SavedTimerData {

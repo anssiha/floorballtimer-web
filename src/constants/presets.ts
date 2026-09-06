@@ -16,4 +16,5 @@ export const DEFAULT_CONFIG: MatchConfig = {
   hapticsEnabled: true,
   autoStartBreak: false,
   keepAwakeOnPause: true,
+  trackGoalieSaves: true,
 };

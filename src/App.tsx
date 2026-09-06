@@ -6,6 +6,7 @@ import { Controls } from './components/Controls';
 import { TimeAdjustModal } from './components/TimeAdjustModal';
 import { SettingsModal } from './components/SettingsModal';
 import { PeriodEndModal } from './components/PeriodEndModal';
+import { GoalieSaveCards } from './components/GoalieSaveCards';
 import './App.css';
 
 export const App: React.FC = () => {
@@ -22,6 +23,10 @@ export const App: React.FC = () => {
     updateConfig,
     setLanguage,
     acknowledgeAlert,
+    addGoalieSave,
+    removeGoalieSave,
+    switchGoalie,
+    addGoalie,
   } = useTimer();
 
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
@@ -55,6 +60,17 @@ export const App: React.FC = () => {
           onOpenAdjust={() => setIsAdjustModalOpen(true)}
           isAlertAcknowledged={isAlertAcknowledged}
         />
+
+        {config.trackGoalieSaves && (
+          <GoalieSaveCards
+            state={state}
+            language={language}
+            onAddSave={addGoalieSave}
+            onRemoveSave={removeGoalieSave}
+            onSwitchGoalie={switchGoalie}
+            onAddGoalie={addGoalie}
+          />
+        )}
 
         <Controls
           state={state}

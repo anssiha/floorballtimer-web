@@ -15,6 +15,7 @@ Nykyaikainen, selkeä ja responsiivinen salibandyn ottelukello ja tulostaulukell
 - **Timer Direction:** Count-up (`00:00` → `20:00`) or count-down (`20:00` → `00:00`).
 - **Realistic Arena Horn:** Web Audio API generated stadium buzzer horn — no external sound files required.
 - **Screen Wake Lock:** Prevents screen dimming and sleeping while running and during play stoppages (with 15-minute inactivity safety).
+- **Goalie Saves Tracker:** Track saves per period for home and away goalies directly on the main screen, with support for mid-game goalie changes and period summaries.
 - **Manual Time Adjustment:** Tap digits directly to fine-tune seconds and minutes on the fly.
 - **Quick Controls:** Extra-large bench-friendly buttons and Spacebar shortcut for Start/Pause.
 - **Persistent State:** Saves ongoing match state automatically to `localStorage` (safely resumes even after page reload).
@@ -42,6 +43,7 @@ Kello on optimoitu sekä vaakasuuntaisille että pystysuuntaisille näytöille j
 | **Hallisumutorvi** | Autenttinen monitaajuuksinen areenatorvi, joka soi erän ja ottelun päättyessä. Toteutettu suoraan Web Audio API:lla ilman raskaita äänitiedostoja. |
 | **Ajan pikasäätö** | Aikanäyttöä napauttamalla aukeaa säätöikkuna, josta aikaa voi korjata välittömästi (+/-1 min, +/-10 s, +/-1 s tai suora syöttö). |
 | **Screen Wake Lock** | Pitää mobiililaitteen tai tietokoneen näytön aktiivisena kellon käydessä sekä pelikatkoilla (tauolla), jottei näyttö sammu kesken erän. Sisältää 15 minuutin suojakatkaisun akun säästämiseksi. |
+| **Maalivahtien torjunnat** | Koti- ja vierasjoukkueen maalivahtien torjuntalaskurit suoraan päänäytöllä. Nopea `+1` / `-1` -kirjaus, tuki maalivahdin vaihdolle ja eräkohtainen torjuntayhteenveto pöytäkirjaa varten. |
 | **Välilyöntituki** | Välilyöntiä painamalla kello käynnistyy ja pysähtyy nopeasti ilman hiirtä. |
 | **Värinäpalaute (Haptics)** | Värinäpalaute erän päättymisestä ja painalluksista tuetuilla mobiililaitteilla. |
 | **Tilan tallennus** | Pelitilanne ja asetukset tallentuvat automaattisesti selaimeen. Vahingossa suljettu tai päivitetty sivu palauttaa käynnissä olevan ajan. |
@@ -84,6 +86,7 @@ Paina oikeassa yläkulmassa olevaa rataskuvaketta (**⚙️ Asetukset**). Asetuk
 - **Sumutorvi / Ääni:** Kytke äänimerkki päälle/pois sekä testaa summeria painikkeesta **📢 Testaa sumutorvea**.
 - **Värinäpalaute:** Kytke haptinen palaute päälle tai pois.
 - **Näyttö päällä pelikatkoilla:** Estää näytön sammumisen myös pelikatkoilla (tauolla).
+- **Maalivahtien torjunnat:** Kytke torjuntalaskurikortit näkyviin tai pois päänäytöltä.
 
 ### 5. Erän tai ottelun nollaus
 Pääpainikkeen vieressä on nollauspainike (**Nollaa**):
@@ -96,6 +99,15 @@ Salibandykelloa voi käyttää sellaisenaan selaimessa tai asentaa täyden ruudu
 - **Android (Chrome):** Avaa sivusto Chromella, avaa valikko (⋮) ja valitse **Lisää aloitusnäyttöön** tai **Asenna sovellus**.
 - **iOS (Safari):** Avaa sivu Safarilla, paina jakopainiketta (neliö ja nuoli ylös) ja valitse **Lisää Koti-valikkoon**.
 - **Tietokone (Chrome / Edge):** Osoiterivin oikeaan reunaan ilmestyy asennuskuvake (Asenna Salibandykello).
+
+### 7. Maalivahtien torjuntojen kirjaaminen
+Kun torjuntalaskuri on käytössä:
+- **Lisää torjunta (+1):** Napauta koti- tai vierasjoukkueen suurta torjuntapainiketta. Laskuri kasvattaa kuluvan erän torjuntoja ja näyttää samalla ottelun kokonaistorjunnat.
+- **Peruuta / vähennä (-1):** Napauta pientä `-`-painiketta, jos kirjasit torjunnan vahingossa.
+- **Vaihda maalivahti:** Napauta joukkueen maalivahtipainiketta (esim. `🥅 #1 ▾`). Avautuvasta valikosta voit:
+  - Valita joukkueen toisen aiemmin pelanneen maalivahdin.
+  - Lisätä uuden maalivahdin numeron tai nimen (esim. `#30`), jolloin torjunnat alkavat kertyä tälle maalivahdille.
+- **Erän ja ottelun päättyminen:** Erän päättyessä hälytysikkuna näyttää erän torjuntamäärät molemmille joukkueille, josta ne on helppo merkitä viralliseen pöytäkirjaan tai Tulospalveluun.
 
 ---
 

@@ -1,5 +1,6 @@
 import type { SavedTimerData, MatchConfig, MatchState, Language } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
+import { createDefaultGoalieSaves } from '../utils/goalie';
 
 const STORAGE_KEY = 'floorball_timer_v3';
 const LEGACY_STORAGE_KEY_V2 = 'floorball_timer_v2';
@@ -18,6 +19,12 @@ export function loadSavedTimerData(): SavedTimerData | null {
     if (parsed && (parsed.version === 3 || parsed.version === 2)) {
       if (parsed.config && parsed.config.keepAwakeOnPause === undefined) {
         parsed.config.keepAwakeOnPause = true;
+      }
+      if (parsed.config && parsed.config.trackGoalieSaves === undefined) {
+        parsed.config.trackGoalieSaves = true;
+      }
+      if (parsed.state && !parsed.state.goalieSaves) {
+        parsed.state.goalieSaves = createDefaultGoalieSaves();
       }
       if (isLegacyV2 || parsed.version === 2) {
         parsed.version = 3;
@@ -127,5 +134,6 @@ export function getDefaultInitialState(config: MatchConfig = DEFAULT_CONFIG): Ma
     currentPeriod: 1,
     remainingMs: config.countDirection === 'DOWN' ? durationMs : 0,
     totalDurationMs: durationMs,
+    goalieSaves: createDefaultGoalieSaves(),
   };
 }

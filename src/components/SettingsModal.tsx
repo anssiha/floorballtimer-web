@@ -329,6 +329,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </label>
           </div>
 
+          <div className="setting-group toggle-group">
+            <div className="toggle-info">
+              <span className="setting-label">{t(language, 'trackGoalieSaves')}</span>
+            </div>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={config.trackGoalieSaves}
+                onChange={(e) => onUpdateConfig({ trackGoalieSaves: e.target.checked })}
+              />
+              <span className="slider round"></span>
+            </label>
+          </div>
+
           {/* Reset Entire Match */}
           <div className="setting-group reset-group">
             <button
