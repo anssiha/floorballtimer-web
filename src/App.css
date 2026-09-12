@@ -519,6 +519,7 @@
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -671,12 +672,20 @@
 }
 
 /* Settings Modal Specifics */
+.settings-modal {
+  height: min(580px, calc(100vh - 40px));
+  height: min(580px, calc(100dvh - 40px));
+  display: flex;
+  flex-direction: column;
+}
+
 .settings-tabs {
   display: flex;
   background: var(--bg-surface-elevated);
   border-bottom: 1px solid var(--border-subtle);
   padding: 6px 14px;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .settings-tab-btn {
@@ -709,11 +718,14 @@
 }
 
 .settings-body {
+  flex: 1;
+  min-height: 0;
   padding: 16px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .setting-group {
@@ -1216,6 +1228,11 @@ input:checked + .slider:before {
   .alert-btn {
     height: 40px;
     font-size: 0.88rem;
+  }
+
+  .settings-modal {
+    height: min(390px, 94vh);
+    height: min(390px, calc(100dvh - 20px));
   }
 }
 

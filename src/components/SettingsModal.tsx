@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { MatchConfig, Language, CountDirection } from '../types/timer';
 import {
   PERIOD_DURATION_PRESETS,
@@ -28,6 +28,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onResetMatch,
 }) => {
   const [activeTab, setActiveTab] = useState<'match' | 'app'>('match');
+  const bodyRef = useRef<HTMLDivElement>(null);
   const [showCustomPeriod, setShowCustomPeriod] = useState(
     !PERIOD_DURATION_PRESETS.includes(config.periodDurationMinutes)
   );
@@ -36,6 +37,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 
   if (!isOpen) return null;
+
+  const handleTabChange = (tab: 'match' | 'app') => {
+    setActiveTab(tab);
+    if (bodyRef.current) {
+      bodyRef.current.scrollTop = 0;
+    }
+  };
 
   const handleTestBuzzer = () => {
     playArenaHorn();
@@ -74,20 +82,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <button
             type="button"
             className={`settings-tab-btn ${activeTab === 'match' ? 'active' : ''}`}
-            onClick={() => setActiveTab('match')}
+            onClick={() => handleTabChange('match')}
           >
             ⏱ {t(language, 'tabMatch')}
           </button>
           <button
             type="button"
             className={`settings-tab-btn ${activeTab === 'app' ? 'active' : ''}`}
-            onClick={() => setActiveTab('app')}
+            onClick={() => handleTabChange('app')}
           >
             📱 {t(language, 'tabApp')}
           </button>
         </div>
 
-        <div className="settings-body">
+        <div className="settings-body" ref={bodyRef}>
           {activeTab === 'match' ? (
             <>
               {/* Number of Periods */}
