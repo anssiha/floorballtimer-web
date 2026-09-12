@@ -40,7 +40,7 @@ Kello on optimoitu sekä vaakasuuntaisille että pystysuuntaisille näytöille j
 | **Erätauko** | Mahdollisuus ottaa käyttöön erätauko (5, 10, 12 tai 15 min tai oma valinta). Erän päätyttyä tauon voi käynnistää tai hypätä suoraan seuraavaan erään. |
 | **Jatkoerä (Overtime)** | Valinnainen jatkoerä (5, 10 tai 20 min), joka aktivoituu varsinaisen peliajan päätyttyä. |
 | **Ajan suunta** | Nouseva aika (`00:00` alkaen kohti erän päättymistä) tai perinteinen laskeva aika (`20:00` kohti nollaa). |
-| **Hallisumutorvi** | Autenttinen monitaajuuksinen areenatorvi, joka soi erän ja ottelun päättyessä. Toteutettu suoraan Web Audio API:lla ilman raskaita äänitiedostoja. |
+| **Summeri** | Autenttinen monitaajuuksinen areenasummeri, joka soi erän ja ottelun päättyessä. Toteutettu suoraan Web Audio API:lla ilman raskaita äänitiedostoja. |
 | **Ajan pikasäätö** | Aikanäyttöä napauttamalla aukeaa säätöikkuna, josta aikaa voi korjata välittömästi (+/-1 min, +/-10 s, +/-1 s tai suora syöttö). |
 | **Screen Wake Lock** | Pitää mobiililaitteen tai tietokoneen näytön aktiivisena kellon käydessä sekä pelikatkoilla (tauolla), jottei näyttö sammu kesken erän. Sisältää 15 minuutin suojakatkaisun akun säästämiseksi. |
 | **Maalivahtien torjunnat** | Koti- ja vierasjoukkueen maalivahtien torjuntalaskurit suoraan päänäytöllä. Nopea `+1` / `-1` -kirjaus, tuki maalivahdin vaihdolle ja eräkohtainen torjuntayhteenveto pöytäkirjaa varten. |
@@ -83,7 +83,7 @@ Paina oikeassa yläkulmassa olevaa rataskuvaketta (**⚙️ Asetukset**). Asetuk
 - **Erätauko:** Kytke erätauko päälle/pois ja aseta sen pituus (5, 10, 12, 15 min tai oma valinta).
 - **Jatkoerä:** Kytke jatkoerä päälle/pois ja valitse sen kesto (5, 10 tai 20 min).
 - **Ajan suunta:** Nouseva (`00:00 ->`) tai Laskeva (`-> 00:00`).
-- **Sumutorvi / Ääni:** Kytke äänimerkki päälle/pois sekä testaa summeria painikkeesta **📢 Testaa sumutorvea**.
+- **Summeri:** Kytke äänimerkki päälle/pois sekä testaa summeria painikkeesta **📢 Testaa summeria**.
 - **Värinäpalaute:** Kytke haptinen palaute päälle tai pois.
 - **Näyttö päällä pelikatkoilla:** Estää näytön sammumisen myös pelikatkoilla (tauolla).
 - **Maalivahtien torjunnat:** Kytke torjuntalaskurikortit näkyviin tai pois päänäytöltä.
