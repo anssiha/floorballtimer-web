@@ -284,6 +284,100 @@ export function useTimer() {
     });
   }, []);
 
+  // Helper to compute min & max allowable seconds for the current period/stage
+  const getStageBounds = useCallback(
+    (stage: StageType, currentPeriod: number): { minSec: number; maxSec: number } => {
+      const isCountDown = config.countDirection === 'DOWN';
+      const periodLenSec = config.periodDurationMinutes * 60;
+
+      if (stage === 'BREAK') {
+        const breakLenSec = config.breakDurationMinutes * 60;
+        return { minSec: 0, maxSec: breakLenSec };
+      }
+
+      if (stage === 'OVERTIME') {
+        const otLenSec = config.overtimeDurationMinutes * 60;
+        if (isCountDown) {
+          return { minSec: 0, maxSec: otLenSec };
+        } else {
+          const startSec = config.periodCount * periodLenSec;
+          return { minSec: startSec, maxSec: startSec + otLenSec };
+        }
+      }
+
+      // Regular PERIOD:
+      if (isCountDown) {
+        return { minSec: 0, maxSec: periodLenSec };
+      } else {
+        // Count UP:
+        // Period 1: 00:00 -> 20:00 (clamps [00:00, 20:00])
+        // Period 2: 20:00 -> 40:00 (clamps [20:00, 40:00])
+        // Period 3: 40:00 -> 60:00 (clamps [40:00, 60:00])
+        const minSec = (currentPeriod - 1) * periodLenSec;
+        const maxSec = currentPeriod * periodLenSec;
+        return { minSec, maxSec };
+      }
+    },
+    [
+      config.countDirection,
+      config.periodDurationMinutes,
+      config.breakDurationMinutes,
+      config.overtimeDurationMinutes,
+      config.periodCount,
+    ]
+  );
+
+  // Quick seconds adjustment (e.g. +1s or -1s stepper buttons next to timer)
+  const adjustSeconds = useCallback(
+    (deltaSeconds: number) => {
+      triggerButtonHaptic();
+      setIsAlertAcknowledged(true);
+      setState((prev) => {
+        const isCountDown = config.countDirection === 'DOWN';
+        // Snap to current displayed whole second
+        const currentSec = isCountDown
+          ? Math.ceil(prev.remainingMs / 1000)
+          : Math.floor(prev.remainingMs / 1000);
+
+        const { minSec, maxSec } = getStageBounds(prev.stage, prev.currentPeriod);
+        const newSec = Math.max(minSec, Math.min(maxSec, currentSec + deltaSeconds));
+        const newMs = newSec * 1000;
+
+        return {
+          ...prev,
+          remainingMs: newMs,
+          status: prev.status === 'PERIOD_ENDED' ? 'PAUSED' : prev.status,
+        };
+      });
+    },
+    [config.countDirection, getStageBounds]
+  );
+
+  // Quick minutes adjustment (e.g. +1m or -1m stepper buttons)
+  const adjustMinutes = useCallback(
+    (deltaMinutes: number) => {
+      triggerButtonHaptic();
+      setIsAlertAcknowledged(true);
+      setState((prev) => {
+        const isCountDown = config.countDirection === 'DOWN';
+        const currentSec = isCountDown
+          ? Math.ceil(prev.remainingMs / 1000)
+          : Math.floor(prev.remainingMs / 1000);
+
+        const { minSec, maxSec } = getStageBounds(prev.stage, prev.currentPeriod);
+        const newSec = Math.max(minSec, Math.min(maxSec, currentSec + deltaMinutes * 60));
+        const newMs = newSec * 1000;
+
+        return {
+          ...prev,
+          remainingMs: newMs,
+          status: prev.status === 'PERIOD_ENDED' ? 'PAUSED' : prev.status,
+        };
+      });
+    },
+    [config.countDirection, getStageBounds]
+  );
+
   // Period Progression
   const proceedToNextStage = useCallback((skipBreak = false) => {
     triggerButtonHaptic();
@@ -417,27 +511,99 @@ export function useTimer() {
     [config]
   );
 
+  // Revert to previous period (e.g. if period was ended or next period was started by accident)
+  const revertToPreviousStage = useCallback(() => {
+    triggerButtonHaptic();
+    setIsAlertAcknowledged(true);
+
+    setState((prev) => {
+      // 1. If currently in OVERTIME, revert to last regular period
+      if (prev.stage === 'OVERTIME') {
+        const lastPeriod = config.periodCount;
+        const durMs = config.periodDurationMinutes * 60 * 1000;
+        const endMs =
+          config.countDirection === 'UP'
+            ? lastPeriod * durMs
+            : 0;
+
+        return {
+          ...prev,
+          status: 'PAUSED',
+          stage: 'PERIOD',
+          currentPeriod: lastPeriod,
+          totalDurationMs: durMs,
+          remainingMs: endMs,
+        };
+      }
+
+      // 2. If currently in a BREAK, revert to the period that just ended
+      if (prev.stage === 'BREAK') {
+        const durMs = config.periodDurationMinutes * 60 * 1000;
+        const endMs =
+          config.countDirection === 'UP'
+            ? prev.currentPeriod * durMs
+            : 0;
+
+        return {
+          ...prev,
+          status: 'PAUSED',
+          stage: 'PERIOD',
+          currentPeriod: prev.currentPeriod,
+          totalDurationMs: durMs,
+          remainingMs: endMs,
+        };
+      }
+
+      // 3. If currently in a regular PERIOD > 1, revert to previous period
+      if (prev.stage === 'PERIOD' && prev.currentPeriod > 1) {
+        const prevPeriod = prev.currentPeriod - 1;
+        const durMs = config.periodDurationMinutes * 60 * 1000;
+        const endMs =
+          config.countDirection === 'UP'
+            ? prevPeriod * durMs
+            : 0;
+
+        return {
+          ...prev,
+          status: 'PAUSED',
+          stage: 'PERIOD',
+          currentPeriod: prevPeriod,
+          totalDurationMs: durMs,
+          remainingMs: endMs,
+        };
+      }
+
+      return prev;
+    });
+  }, [config]);
+
   // Update configuration
   const updateConfig = useCallback(
     (newConfig: Partial<MatchConfig>) => {
       setConfigState((prev) => {
         const merged = { ...prev, ...newConfig };
-        // If period length changed and timer is STOPPED at period 1, update active start/target
-        if (
+        // If period length or count direction changed and timer is STOPPED at period 1, update active start/target
+        const durationChanged =
           newConfig.periodDurationMinutes !== undefined &&
-          newConfig.periodDurationMinutes !== prev.periodDurationMinutes &&
+          newConfig.periodDurationMinutes !== prev.periodDurationMinutes;
+        const directionChanged =
+          newConfig.countDirection !== undefined &&
+          newConfig.countDirection !== prev.countDirection;
+
+        if (
+          (durationChanged || directionChanged) &&
           state.status === 'STOPPED' &&
           state.stage === 'PERIOD'
         ) {
-          const newDurMs = newConfig.periodDurationMinutes * 60 * 1000;
+          const effectiveDur = merged.periodDurationMinutes * 60 * 1000;
           const startMs =
             merged.countDirection === 'UP'
-              ? (state.currentPeriod - 1) * newDurMs
-              : newDurMs;
+              ? (state.currentPeriod - 1) * effectiveDur
+              : effectiveDur;
 
           setState((prevState) => ({
             ...prevState,
-            totalDurationMs: newDurMs,
+            totalDurationMs: effectiveDur,
             remainingMs: startMs,
           }));
         }
@@ -613,7 +779,10 @@ export function useTimer() {
     resetPeriod,
     resetMatch,
     adjustRemainingMs,
+    adjustSeconds,
+    adjustMinutes,
     proceedToNextStage,
+    revertToPreviousStage,
     jumpToStage,
     updateConfig,
     setLanguage,

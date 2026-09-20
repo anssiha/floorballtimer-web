@@ -77,6 +77,11 @@ export const translations = {
     confirmBreakTitle: 'Aloitetaanko erätauko?',
     confirmBreakText: 'Haluatko aloittaa erätauon vai siirtyä suoraan seuraavaan erään?',
     skipBreak: 'Siirry suoraan seuraavaan erään',
+    addSecond: 'Lisää sekunti (+1 s)',
+    subtractSecond: 'Vähennä sekunti (-1 s)',
+    addMinute: 'Lisää minuutti (+1 min)',
+    subtractMinute: 'Vähennä minuutti (-1 min)',
+    gameStopped: 'Pelikatko',
   },
   en: {
     appTitle: 'Floorball Timer',
@@ -154,6 +159,11 @@ export const translations = {
     confirmBreakTitle: 'Start intermission break?',
     confirmBreakText: 'Do you want to start the intermission break or skip directly to the next period?',
     skipBreak: 'Skip break (Next period)',
+    addSecond: 'Add second (+1 s)',
+    subtractSecond: 'Subtract second (-1 s)',
+    addMinute: 'Add minute (+1 min)',
+    subtractMinute: 'Subtract minute (-1 min)',
+    gameStopped: 'Game Stopped',
   },
 } as const;
 

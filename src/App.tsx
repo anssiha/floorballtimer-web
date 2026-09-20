@@ -3,9 +3,7 @@ import { useTimer } from './hooks/useTimer';
 import { Header } from './components/Header';
 import { TimerDisplay } from './components/TimerDisplay';
 import { Controls } from './components/Controls';
-import { TimeAdjustModal } from './components/TimeAdjustModal';
 import { SettingsModal } from './components/SettingsModal';
-import { PeriodEndModal } from './components/PeriodEndModal';
 import { GoalieSaveCards } from './components/GoalieSaveCards';
 import './App.css';
 
@@ -18,24 +16,24 @@ export const App: React.FC = () => {
     toggleTimer,
     resetPeriod,
     resetMatch,
-    adjustRemainingMs,
+    adjustSeconds,
+    adjustMinutes,
     proceedToNextStage,
+    revertToPreviousStage,
     updateConfig,
     setLanguage,
-    acknowledgeAlert,
     addGoalieSave,
     removeGoalieSave,
     switchGoalie,
     addGoalie,
   } = useTimer();
 
-  const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Keyboard shortcut: Spacebar toggles start/pause if not in modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isAdjustModalOpen || isSettingsModalOpen) return;
+      if (isSettingsModalOpen) return;
       if (e.code === 'Space' && e.target === document.body) {
         e.preventDefault();
         toggleTimer();
@@ -43,7 +41,7 @@ export const App: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleTimer, isAdjustModalOpen, isSettingsModalOpen]);
+  }, [toggleTimer, isSettingsModalOpen]);
 
   return (
     <div className="app-container">
@@ -57,7 +55,8 @@ export const App: React.FC = () => {
           state={state}
           config={config}
           language={language}
-          onOpenAdjust={() => setIsAdjustModalOpen(true)}
+          onAdjustMinutes={adjustMinutes}
+          onAdjustSeconds={adjustSeconds}
           isAlertAcknowledged={isAlertAcknowledged}
         />
 
@@ -80,19 +79,9 @@ export const App: React.FC = () => {
           onResetPeriod={resetPeriod}
           onResetMatch={resetMatch}
           onProceedNext={proceedToNextStage}
+          onRevertPrevious={revertToPreviousStage}
         />
       </main>
-
-      {/* Manual Time Adjustment Modal */}
-      {isAdjustModalOpen && (
-        <TimeAdjustModal
-          isOpen={isAdjustModalOpen}
-          onClose={() => setIsAdjustModalOpen(false)}
-          currentRemainingMs={state.remainingMs}
-          onApply={adjustRemainingMs}
-          language={language}
-        />
-      )}
 
       {/* Match Configuration Settings Modal */}
       <SettingsModal
@@ -103,16 +92,6 @@ export const App: React.FC = () => {
         language={language}
         onLanguageChange={setLanguage}
         onResetMatch={resetMatch}
-      />
-
-      {/* Period Ended Alert Dialog */}
-      <PeriodEndModal
-        isOpen={state.status === 'PERIOD_ENDED' && !isAlertAcknowledged}
-        state={state}
-        config={config}
-        language={language}
-        onAcknowledge={acknowledgeAlert}
-        onProceedNext={proceedToNextStage}
       />
     </div>
   );

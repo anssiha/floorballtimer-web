@@ -161,6 +161,29 @@
   animation: period-flash 0.8s infinite ease-in-out;
 }
 
+/* Option 1: Play Stopped (Pelikatko) Thicker Amber Breathing Glow */
+@keyframes play-stopped-pulse {
+  0%, 100% {
+    border-color: rgba(255, 179, 0, 0.6);
+    box-shadow: 0 0 22px rgba(255, 179, 0, 0.28), inset 0 0 18px rgba(255, 179, 0, 0.1);
+  }
+  50% {
+    border-color: #ffb300;
+    box-shadow: 0 0 48px rgba(255, 179, 0, 0.6), inset 0 0 32px rgba(255, 179, 0, 0.22);
+  }
+}
+
+.timer-display-container.play-stopped {
+  animation: play-stopped-pulse 2s infinite ease-in-out;
+  border-width: 4px;
+}
+
+.timer-display-container.play-stopped .colon-separator {
+  animation: none;
+  opacity: 1;
+  color: var(--accent-amber);
+}
+
 /* Stage Badge Wrapper */
 .stage-badge-wrapper {
   display: flex;
@@ -224,6 +247,24 @@
   border-color: rgba(255, 179, 0, 0.3);
 }
 
+.timer-state-pill.state-play-stopped {
+  background: rgba(255, 179, 0, 0.3);
+  color: #ffc107;
+  border: 2px solid #ffb300;
+  box-shadow: 0 0 20px rgba(255, 179, 0, 0.55);
+  font-weight: 850;
+  font-size: 0.82rem;
+  padding: 5px 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.timer-state-pill.state-play-stopped .paused-icon {
+  font-size: 0.88rem;
+  line-height: 1;
+  margin-right: 2px;
+}
+
 .timer-state-pill.state-stopped {
   background: rgba(148, 163, 184, 0.12);
   color: var(--text-muted);
@@ -256,26 +297,96 @@
   }
 }
 
-/* Timer Digits Box */
+/* Timer Digits Box & Stepper Row */
 .timer-digits-box {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 16px;
+  padding: 12px 14px;
   cursor: default;
   border-radius: var(--radius-md);
   width: 100%;
-  transition: background-color 0.2s ease;
 }
 
-.timer-digits-box.editable {
+.timer-stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2.5vw, 28px);
+  width: 100%;
+}
+
+.unit-stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(5px, 1.2vw, 8px);
+  user-select: none;
+}
+
+.stepper-unit-label {
+  font-size: clamp(0.72rem, 1.6vw, 0.85rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim, #94a3b8);
+  padding: 2px 0;
+  line-height: 1;
+}
+
+/* Ergonomic, Large Stepper Buttons */
+.stepper-arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(44px, 8.5vw, 56px);
+  height: clamp(44px, 8.5vw, 56px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  color: var(--text-main, #f8fafc);
   cursor: pointer;
+  padding: 0;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
 }
 
-.timer-digits-box.editable:hover {
-  background: rgba(255, 255, 255, 0.03);
+.stepper-arrow-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.stepper-arrow-btn:active {
+  background: rgba(255, 112, 67, 0.3);
+  border-color: var(--accent-orange, #ff7043);
+  color: #ff9e80;
+  transform: scale(0.92);
+  box-shadow: 0 0 16px rgba(255, 112, 67, 0.55);
+}
+
+.stepper-arrow-btn svg {
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .timer-stepper-row {
+    gap: 8px;
+  }
+  .stepper-arrow-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+  }
 }
 
 .timer-numbers {
@@ -285,7 +396,7 @@
   font-family: var(--font-timer);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
-  font-size: clamp(5.4rem, 23vw, 9rem);
+  font-size: clamp(4.8rem, 20vw, 8.8rem);
   font-weight: 850;
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -316,21 +427,6 @@
   text-shadow: 0 0 25px rgba(255, 51, 75, 0.8);
 }
 
-.edit-hint {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 10px;
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-.timer-digits-box.editable:hover .edit-hint {
-  color: var(--accent-orange);
-}
-
 /* Progress Track */
 .timer-progress-track {
   width: 100%;
@@ -358,16 +454,16 @@
 /* Main Action Button (Massive Bench Button) */
 .main-action-btn {
   width: 100%;
-  height: 94px;
-  min-height: 94px;
-  border-radius: 20px;
+  height: clamp(126px, 18vh, 150px);
+  min-height: 126px;
+  border-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  font-size: 1.65rem;
+  gap: 16px;
+  font-size: clamp(1.9rem, 5.5vw, 2.35rem);
   font-weight: 850;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #ffffff;
   box-shadow: var(--shadow-md);

@@ -1,8 +1,15 @@
 /**
  * Format milliseconds into MM:SS
+ * When counting down, Math.ceil is used so 00:00 only appears upon complete expiration.
+ * When counting up, Math.floor is used so 00:00 represents the first second (0.000s to 0.999s).
  */
-export function formatMMSS(ms: number): { minutes: string; seconds: string; formatted: string } {
-  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+export function formatMMSS(
+  ms: number,
+  countDirection: 'UP' | 'DOWN' = 'DOWN'
+): { minutes: string; seconds: string; formatted: string } {
+  const safeMs = Math.max(0, ms);
+  const totalSeconds =
+    countDirection === 'UP' ? Math.floor(safeMs / 1000) : Math.ceil(safeMs / 1000);
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
 

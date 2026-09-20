@@ -10,6 +10,7 @@ interface ControlsProps {
   onResetPeriod: () => void;
   onResetMatch: () => void;
   onProceedNext: (skipBreak?: boolean) => void;
+  onRevertPrevious?: () => void;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -20,6 +21,7 @@ export const Controls: React.FC<ControlsProps> = ({
   onResetPeriod,
   onResetMatch,
   onProceedNext,
+  onRevertPrevious,
 }) => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showProceedConfirm, setShowProceedConfirm] = useState(false);
@@ -27,6 +29,8 @@ export const Controls: React.FC<ControlsProps> = ({
   const isRunning = state.status === 'RUNNING';
   const isPeriodEnded = state.status === 'PERIOD_ENDED';
   const isMatchFinished = state.status === 'MATCH_FINISHED';
+  const canRevertPrevious =
+    state.currentPeriod > 1 || state.stage === 'BREAK' || state.stage === 'OVERTIME';
 
   // Primary button label & style
   let primaryLabel = t(language, 'start');
@@ -171,6 +175,19 @@ export const Controls: React.FC<ControlsProps> = ({
                 >
                   {t(language, 'resetPeriod')}
                 </button>
+                {canRevertPrevious && onRevertPrevious && (
+                  <button
+                    type="button"
+                    className="btn-danger-confirm"
+                    style={{ background: 'rgba(255, 179, 0, 0.2)', color: '#ffb300', borderColor: 'rgba(255, 179, 0, 0.4)' }}
+                    onClick={() => {
+                      onRevertPrevious();
+                      setShowResetConfirm(false);
+                    }}
+                  >
+                    ⏪ {t(language, 'previousPeriod')}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="btn-danger-all"
