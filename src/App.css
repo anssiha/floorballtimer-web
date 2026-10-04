@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  height: 100dvh;
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
@@ -1115,222 +1116,7 @@ input:checked + .slider:before {
   color: var(--text-main);
 }
 
-/* Responsive Landscape / Mobile Horizontal Mode */
-@media (orientation: landscape) and (max-height: 650px) {
-  .app-container {
-    padding: env(safe-area-inset-top, 4px) env(safe-area-inset-right, 14px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 14px);
-    max-width: 100%;
-    height: 100%;
-  }
 
-  .app-header {
-    padding: 2px 0 4px 0;
-    gap: 6px;
-  }
-
-  .app-badge {
-    gap: 6px;
-  }
-
-  .app-logo-img {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-  }
-
-  .app-title {
-    font-size: 0.95rem;
-  }
-
-  .settings-btn {
-    width: 34px;
-    height: 34px;
-  }
-
-  /* 2-Column Grid: Left side displays (Timer + Goalie cards), Right side controls */
-  .main-content {
-    display: grid;
-    grid-template-columns: 1.35fr 1fr;
-    grid-template-rows: 1fr auto;
-    gap: 8px 12px;
-    padding: 4px 0 0 0;
-    height: calc(100% - 40px);
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  /* Left Column Top: Timer Display */
-  .timer-display-container {
-    grid-column: 1;
-    grid-row: 1;
-    margin-bottom: 0;
-    padding: 6px 12px;
-    justify-content: space-around;
-    min-height: 0;
-    border-radius: var(--radius-md);
-  }
-
-  .timer-numbers {
-    font-size: clamp(2.6rem, 9.5vw, 4.5rem);
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-
-  .period-progress-bar {
-    margin-bottom: 2px;
-    height: 3px;
-  }
-
-  .timer-subtitle-row {
-    margin-top: 2px;
-  }
-
-  .edit-hint {
-    display: none;
-  }
-
-  /* Left Column Bottom: Goalie Saves Cards */
-  .goalie-saves-container {
-    grid-column: 1;
-    grid-row: 2;
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    gap: 8px;
-  }
-
-  .goalie-team-card {
-    padding: 4px 8px;
-    gap: 4px;
-    border-radius: var(--radius-sm);
-  }
-
-  .goalie-card-header {
-    gap: 4px;
-  }
-
-  .goalie-team-title {
-    font-size: 0.72rem;
-  }
-
-  .goalie-select-chip {
-    padding: 2px 6px;
-    font-size: 0.68rem;
-  }
-
-  .goalie-action-row {
-    height: 40px;
-    gap: 4px;
-  }
-
-  .btn-save-minus {
-    width: 32px;
-    font-size: 1.1rem;
-  }
-
-  .btn-save-plus-main {
-    padding: 2px 8px;
-  }
-
-  .save-plus-icon {
-    font-size: 0.72rem;
-  }
-
-  .save-period-num {
-    font-size: 1.3rem;
-  }
-
-  .save-period-label {
-    font-size: 0.65rem;
-  }
-
-  .save-total-label {
-    font-size: 0.62rem;
-  }
-
-  /* Right Column: Controls Spanning Full Height */
-  .controls-container {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-    min-height: 0;
-    gap: 6px;
-  }
-
-  .main-action-btn {
-    flex: 1;
-    height: auto;
-    min-height: 58px;
-    max-height: none;
-    font-size: clamp(1.2rem, 3.2vw, 1.55rem);
-    border-radius: var(--radius-md);
-    padding: 8px;
-    gap: 8px;
-  }
-
-  .main-action-btn .btn-icon svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .secondary-controls {
-    display: flex;
-    gap: 6px;
-  }
-
-  .secondary-btn {
-    height: 38px;
-    font-size: 0.82rem;
-    padding: 0 8px;
-    border-radius: var(--radius-sm);
-  }
-
-  .stage-selectors {
-    gap: 4px;
-    padding-bottom: 0;
-  }
-
-  .stage-chip {
-    padding: 5px 6px;
-    font-size: 0.72rem;
-    border-radius: var(--radius-sm);
-  }
-
-  /* Modals in landscape */
-  .period-alert-card {
-    padding: 16px 20px;
-    max-height: 94vh;
-    overflow-y: auto;
-  }
-
-  .buzz-icon {
-    font-size: 2.2rem;
-  }
-
-  .alert-title {
-    font-size: 1.25rem;
-    margin: 4px 0;
-  }
-
-  .period-saves-summary {
-    margin: 6px 0;
-    padding: 6px 10px;
-  }
-
-  .alert-btn {
-    height: 40px;
-    font-size: 0.88rem;
-  }
-
-  .settings-modal {
-    height: min(390px, 94vh);
-    height: min(390px, calc(100dvh - 20px));
-  }
-}
 
 /* Reset Confirmation Modal */
 .confirm-modal {
@@ -1815,5 +1601,331 @@ input:checked + .slider:before {
   color: var(--text-dim);
   padding: 0 4px;
 }
+
+/* ==========================================================================
+   Responsive Landscape / Mobile Horizontal Mode (Must be at end for cascade)
+   ========================================================================== */
+@media (orientation: landscape) and (max-height: 650px) {
+  .app-container {
+    padding: env(safe-area-inset-top, 4px) env(safe-area-inset-right, 14px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 14px);
+    max-width: 100%;
+    height: 100%;
+    height: 100dvh;
+  }
+
+  .app-header {
+    padding: 2px 0 4px 0;
+    gap: 6px;
+  }
+
+  .app-badge {
+    gap: 6px;
+  }
+
+  .app-logo-img {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .app-title {
+    font-size: 0.95rem;
+  }
+
+  .settings-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* 2-Column Grid: Left side displays (Timer + Goalie cards), Right side controls */
+  .main-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 6px 10px;
+    padding: 2px 0 0 0;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* When goalie saves are not tracked, timer display takes full left column height */
+  .main-content:not(:has(.goalie-saves-container)) {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .main-content:not(:has(.goalie-saves-container)) .timer-display-container {
+    grid-row: 1 / -1;
+  }
+
+  .main-content:not(:has(.goalie-saves-container)) .timer-numbers {
+    font-size: clamp(3rem, 10vw, 4.8rem);
+  }
+
+  .main-content:not(:has(.goalie-saves-container)) .stepper-arrow-btn {
+    width: clamp(38px, 6vw, 48px);
+    height: clamp(38px, 6vw, 48px);
+  }
+
+  /* Left Column Top: Timer Display */
+  .timer-display-container {
+    grid-column: 1;
+    grid-row: 1;
+    margin-bottom: 0;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  /* Stage Badge & Status Pill in Landscape */
+  .stage-badge-wrapper {
+    margin-bottom: 2px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .stage-badge {
+    padding: 2px 8px;
+    font-size: 0.74rem;
+    gap: 4px;
+  }
+
+  .stage-icon {
+    font-size: 0.8rem;
+  }
+
+  .timer-state-pill {
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    gap: 4px;
+  }
+
+  .timer-state-pill.state-play-stopped {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+  }
+
+  .timer-state-pill.state-play-stopped .paused-icon {
+    font-size: 0.76rem;
+  }
+
+  /* Timer Digits Box & Stepper Row */
+  .timer-digits-box {
+    padding: 0;
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .timer-stepper-row {
+    gap: clamp(6px, 1.8vw, 16px);
+    align-items: center;
+  }
+
+  .unit-stepper {
+    gap: 2px;
+  }
+
+  .stepper-unit-label {
+    font-size: 0.65rem;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .stepper-arrow-btn {
+    width: clamp(30px, 4.8vw, 38px);
+    height: clamp(30px, 4.8vw, 38px);
+    border-radius: 9px;
+  }
+
+  .stepper-arrow-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 3;
+  }
+
+  .timer-numbers {
+    font-size: clamp(2.2rem, 6.8vw, 3.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .colon-separator {
+    margin: 0 1px;
+  }
+
+  .timer-progress-track {
+    margin-top: 2px;
+    height: 3px;
+    flex-shrink: 0;
+  }
+
+  .period-progress-bar {
+    margin-bottom: 2px;
+    height: 3px;
+  }
+
+  .timer-subtitle-row {
+    margin-top: 2px;
+  }
+
+  .edit-hint {
+    display: none;
+  }
+
+  /* Left Column Bottom: Goalie Saves Cards */
+  .goalie-saves-container {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .goalie-team-card {
+    padding: 3px 6px;
+    gap: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .goalie-card-header {
+    gap: 4px;
+  }
+
+  .goalie-team-title {
+    font-size: 0.68rem;
+  }
+
+  .goalie-select-chip {
+    padding: 1px 5px;
+    font-size: 0.64rem;
+  }
+
+  .goalie-action-row {
+    height: 34px;
+    gap: 4px;
+  }
+
+  .btn-save-minus {
+    width: 28px;
+    font-size: 1rem;
+  }
+
+  .btn-save-plus-main {
+    padding: 2px 6px;
+  }
+
+  .save-plus-icon {
+    font-size: 0.68rem;
+  }
+
+  .save-period-num {
+    font-size: 1.15rem;
+  }
+
+  .save-period-label {
+    font-size: 0.6rem;
+  }
+
+  .save-total-label {
+    font-size: 0.58rem;
+  }
+
+  /* Right Column: Controls Spanning Full Height */
+  .controls-container {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    min-height: 0;
+    gap: 6px;
+  }
+
+  .main-action-btn {
+    flex: 1;
+    height: auto;
+    min-height: 48px;
+    max-height: none;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    border-radius: var(--radius-md);
+    padding: 6px;
+    gap: 8px;
+  }
+
+  .main-action-btn .btn-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .secondary-controls {
+    display: flex;
+    gap: 6px;
+  }
+
+  .secondary-btn {
+    height: 34px;
+    font-size: 0.78rem;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  .stage-selectors {
+    gap: 4px;
+    padding-bottom: 0;
+  }
+
+  .stage-chip {
+    padding: 5px 6px;
+    font-size: 0.72rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Modals in landscape */
+  .period-alert-card {
+    padding: 16px 20px;
+    max-height: 94vh;
+    max-height: 94dvh;
+    overflow-y: auto;
+  }
+
+  .buzz-icon {
+    font-size: 2.2rem;
+  }
+
+  .alert-title {
+    font-size: 1.25rem;
+    margin: 4px 0;
+  }
+
+  .period-saves-summary {
+    margin: 6px 0;
+    padding: 6px 10px;
+  }
+
+  .alert-btn {
+    height: 40px;
+    font-size: 0.88rem;
+  }
+
+  .settings-modal {
+    height: min(390px, 94vh);
+    height: min(390px, calc(100dvh - 20px));
+  }
+}
+
 
 
