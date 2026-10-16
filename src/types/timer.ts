@@ -14,9 +14,7 @@ export interface MatchConfig {
   overtimeEnabled: boolean;
   overtimeDurationMinutes: number; // e.g. 5
   countDirection: CountDirection;
-  soundEnabled: boolean;
   hapticsEnabled: boolean;
-  autoStartBreak: boolean;
   keepAwakeOnPause: boolean;
   trackGoalieSaves: boolean;
 }

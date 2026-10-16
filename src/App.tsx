@@ -26,22 +26,40 @@ export const App: React.FC = () => {
     removeGoalieSave,
     switchGoalie,
     addGoalie,
+    updateTeamName,
   } = useTimer();
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
-  // Keyboard shortcut: Spacebar toggles start/pause if not in modal
+  // Keyboard shortcut: Spacebar toggles start/pause, whichever button has focus.
+  // Without this, Space would "click" the last tapped button (e.g. Reset) instead.
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isSettingsModalOpen) return;
-      if (e.code === 'Space' && e.target === document.body) {
-        e.preventDefault();
-        toggleTimer();
-      }
+    const isShortcutSpace = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return false;
+      // Leave Space alone inside dialogs and text fields
+      if (document.querySelector('[aria-modal="true"]')) return false;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return false;
+      return true;
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isShortcutSpace(e)) return;
+      e.preventDefault();
+      if (!e.repeat) toggleTimer();
+    };
+    // Buttons activate on keyup in some browsers, so block that too
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (isShortcutSpace(e)) e.preventDefault();
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleTimer, isSettingsModalOpen]);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [toggleTimer]);
 
   return (
     <div className="app-container">
@@ -68,6 +86,7 @@ export const App: React.FC = () => {
             onRemoveSave={removeGoalieSave}
             onSwitchGoalie={switchGoalie}
             onAddGoalie={addGoalie}
+            onRenameTeam={updateTeamName}
           />
         )}
 
@@ -88,6 +107,7 @@ export const App: React.FC = () => {
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
         config={config}
+        state={state}
         onUpdateConfig={updateConfig}
         language={language}
         onLanguageChange={setLanguage}

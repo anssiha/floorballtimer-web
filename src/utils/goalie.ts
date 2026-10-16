@@ -1,4 +1,5 @@
-import type { GoalieStats, GoalieSavesState } from '../types/timer';
+import type { GoalieStats, GoalieSavesState, TeamGoalieData, Language } from '../types/timer';
+import { t } from '../i18n/translations';
 
 export function createDefaultGoalie(id: string, nameOrNumber: string): GoalieStats {
   return {
@@ -12,12 +13,12 @@ export function createDefaultGoalie(id: string, nameOrNumber: string): GoalieSta
 export function createDefaultGoalieSaves(): GoalieSavesState {
   return {
     home: {
-      teamName: 'Koti',
+      teamName: '',
       activeGoalieId: 'home_1',
       goalies: [createDefaultGoalie('home_1', '#1')],
     },
     away: {
-      teamName: 'Vieras',
+      teamName: '',
       activeGoalieId: 'away_1',
       goalies: [createDefaultGoalie('away_1', '#1')],
     },
@@ -47,4 +48,27 @@ export function getTeamPeriodSaves(goalies: GoalieStats[], period: number): numb
  */
 export function getTeamTotalSaves(goalies: GoalieStats[]): number {
   return goalies.reduce((sum, g) => sum + getGoalieTotalSaves(g), 0);
+}
+
+/**
+ * Saves cleared for a new match; team names and the goalie roster are kept,
+ * since the same team (and its goalies) usually plays the next match too.
+ */
+export function clearGoalieSaves(saves: GoalieSavesState): GoalieSavesState {
+  const clearTeam = (team: TeamGoalieData): TeamGoalieData => ({
+    ...team,
+    goalies: team.goalies.map((g) => ({ ...g, savesPerPeriod: {}, savesOvertime: 0 })),
+  });
+  return { home: clearTeam(saves.home), away: clearTeam(saves.away) };
+}
+
+/**
+ * Display name of a team: the custom name, or the translated "Home"/"Away"
+ */
+export function getTeamLabel(
+  teamData: TeamGoalieData,
+  team: 'home' | 'away',
+  language: Language
+): string {
+  return teamData.teamName.trim() || t(language, team);
 }

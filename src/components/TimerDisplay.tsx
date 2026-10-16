@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import type { MatchState, MatchConfig, Language } from '../types/timer';
 import { formatMMSS } from '../utils/format';
+import { getStageProgressPercent } from '../utils/timerMath';
 import { t } from '../i18n/translations';
 
 interface TimerDisplayProps {
@@ -117,59 +118,19 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
     [stopHold]
   );
 
-  // Calculate percentage elapsed for the active period/break progress bar
-  let progressPercent = 0;
-  const isCountDown = config.countDirection === 'DOWN';
-
-  if (state.stage === 'BREAK') {
-    const breakLenMs = config.breakDurationMinutes * 60 * 1000;
-    if (breakLenMs > 0) {
-      progressPercent = Math.min(
-        100,
-        Math.max(0, ((breakLenMs - state.remainingMs) / breakLenMs) * 100)
-      );
-    }
-  } else if (state.stage === 'OVERTIME') {
-    const otLenMs = config.overtimeDurationMinutes * 60 * 1000;
-    if (otLenMs > 0) {
-      if (isCountDown) {
-        progressPercent = Math.min(
-          100,
-          Math.max(0, ((otLenMs - state.remainingMs) / otLenMs) * 100)
-        );
-      } else {
-        const startMs = config.periodCount * config.periodDurationMinutes * 60 * 1000;
-        progressPercent = Math.min(
-          100,
-          Math.max(0, ((state.remainingMs - startMs) / otLenMs) * 100)
-        );
-      }
-    }
-  } else {
-    // Regular PERIOD
-    const periodLenMs = config.periodDurationMinutes * 60 * 1000;
-    if (periodLenMs > 0) {
-      if (isCountDown) {
-        progressPercent = Math.min(
-          100,
-          Math.max(0, ((periodLenMs - state.remainingMs) / periodLenMs) * 100)
-        );
-      } else {
-        const startMs = (state.currentPeriod - 1) * periodLenMs;
-        progressPercent = Math.min(
-          100,
-          Math.max(0, ((state.remainingMs - startMs) / periodLenMs) * 100)
-        );
-      }
-    }
-  }
+  // Percentage elapsed for the active period/break progress bar
+  const progressPercent = getStageProgressPercent(config, state);
 
   // Stage display badge text
   let stageLabel = '';
   if (state.status === 'MATCH_FINISHED') {
     stageLabel = t(language, 'matchFinished');
   } else if (state.stage === 'BREAK') {
-    stageLabel = t(language, 'break');
+    // During a break, currentPeriod is still the period that just ended
+    stageLabel = t(language, 'breakBeforePeriod', {
+      next: state.currentPeriod + 1,
+      total: config.periodCount,
+    });
   } else if (state.stage === 'OVERTIME') {
     stageLabel = t(language, 'overtime');
   } else {
@@ -258,7 +219,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
             </button>
-            <span className="stepper-unit-label">min</span>
+            <span className="stepper-unit-label">{t(language, 'minShort')}</span>
             <button
               type="button"
               className="stepper-arrow-btn minus"
@@ -305,7 +266,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
             </button>
-            <span className="stepper-unit-label">sek</span>
+            <span className="stepper-unit-label">{t(language, 'secShort')}</span>
             <button
               type="button"
               className="stepper-arrow-btn minus"

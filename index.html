@@ -10,21 +10,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Salibandykello" />
-    <meta name="description" content="Floorball match timer with arena buzzer horn, period progression, and screen wake lock." />
+    <meta name="description" content="Floorball match timer with period progression, goalie save tracking, and screen wake lock." />
     <title>Floorball Timer - Salibandykello</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('%BASE_URL%sw.js', { scope: '%BASE_URL%' }).catch((err) => {
-            console.warn('SW registration failed:', err);
-          });
-        });
-      }
-    </script>
   </body>
 </html>
 

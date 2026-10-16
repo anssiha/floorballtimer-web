@@ -1,6 +1,7 @@
 import type { SavedTimerData, MatchConfig, MatchState, Language } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
 import { createDefaultGoalieSaves } from '../utils/goalie';
+import { getStageClock, advanceClock } from '../utils/timerMath';
 
 const STORAGE_KEY = 'floorball_timer_v3';
 const LEGACY_STORAGE_KEY_V2 = 'floorball_timer_v2';
@@ -20,11 +21,27 @@ export function loadSavedTimerData(): SavedTimerData | null {
       if (parsed.config && parsed.config.keepAwakeOnPause === undefined) {
         parsed.config.keepAwakeOnPause = true;
       }
+      // Drop settings that no longer exist (buzzer horn, auto-start break)
+      if (parsed.config) {
+        const legacyConfig = parsed.config as { soundEnabled?: boolean; autoStartBreak?: boolean };
+        delete legacyConfig.soundEnabled;
+        delete legacyConfig.autoStartBreak;
+      }
       if (parsed.config && parsed.config.trackGoalieSaves === undefined) {
         parsed.config.trackGoalieSaves = true;
       }
       if (parsed.state && !parsed.state.goalieSaves) {
         parsed.state.goalieSaves = createDefaultGoalieSaves();
+      }
+      // Older versions stored hard-coded Finnish default team names; clear them so the
+      // UI falls back to the translated "Home"/"Away" labels.
+      if (parsed.state?.goalieSaves) {
+        if (parsed.state.goalieSaves.home.teamName === 'Koti') {
+          parsed.state.goalieSaves.home.teamName = '';
+        }
+        if (parsed.state.goalieSaves.away.teamName === 'Vieras') {
+          parsed.state.goalieSaves.away.teamName = '';
+        }
       }
       if (isLegacyV2 || parsed.version === 2) {
         parsed.version = 3;
@@ -41,53 +58,26 @@ export function loadSavedTimerData(): SavedTimerData | null {
 
         // Safety cap: if away for more than 3 hours, pause timer to avoid runaway sessions from old days
         if (elapsedAway > 3 * 60 * 60 * 1000) {
-          parsed.state.status = 'PAUSED';
+          if (parsed.state.stage === 'BREAK') {
+            // A break can't be paused, and one left running for hours is long over
+            parsed.state.remainingMs = 0;
+            parsed.state.status = 'PERIOD_ENDED';
+          } else {
+            parsed.state.status = 'PAUSED';
+          }
           return parsed;
         }
 
-        const isCountDown = parsed.config.countDirection === 'DOWN';
-        let newRemainingMs = parsed.state.remainingMs;
-        let isEnded = false;
-
-        if (parsed.state.stage === 'BREAK') {
-          newRemainingMs = Math.max(0, parsed.state.remainingMs - elapsedAway);
-          if (newRemainingMs <= 0) {
-            isEnded = true;
-          }
-        } else if (parsed.state.stage === 'OVERTIME') {
-          if (isCountDown) {
-            newRemainingMs = Math.max(0, parsed.state.remainingMs - elapsedAway);
-            if (newRemainingMs <= 0) isEnded = true;
-          } else {
-            const regularEndMs = parsed.config.periodCount * parsed.config.periodDurationMinutes * 60 * 1000;
-            const otTargetMs = regularEndMs + parsed.config.overtimeDurationMinutes * 60 * 1000;
-            newRemainingMs = parsed.state.remainingMs + elapsedAway;
-            if (newRemainingMs >= otTargetMs) {
-              newRemainingMs = otTargetMs;
-              isEnded = true;
-            }
-          }
-        } else {
-          // Regular PERIOD
-          if (isCountDown) {
-            newRemainingMs = Math.max(0, parsed.state.remainingMs - elapsedAway);
-            if (newRemainingMs <= 0) isEnded = true;
-          } else {
-            const periodTargetMs = parsed.state.currentPeriod * parsed.config.periodDurationMinutes * 60 * 1000;
-            newRemainingMs = parsed.state.remainingMs + elapsedAway;
-            if (newRemainingMs >= periodTargetMs) {
-              newRemainingMs = periodTargetMs;
-              isEnded = true;
-            }
-          }
-        }
-
-        parsed.state.remainingMs = newRemainingMs;
-        if (isEnded) {
-          parsed.state.status = 'PERIOD_ENDED';
-        } else {
-          parsed.state.status = 'RUNNING';
-        }
+        const { remainingMs, isEnded } = advanceClock(parsed.config, parsed.state, elapsedAway);
+        parsed.state.remainingMs = remainingMs;
+        parsed.state.status = isEnded ? 'PERIOD_ENDED' : 'RUNNING';
+      }
+      // Breaks can no longer be paused; resume a break saved as stopped/paused by older versions
+      if (
+        parsed.state.stage === 'BREAK' &&
+        (parsed.state.status === 'STOPPED' || parsed.state.status === 'PAUSED')
+      ) {
+        parsed.state.status = 'RUNNING';
       }
       return parsed;
     }
@@ -117,23 +107,14 @@ export function saveTimerData(
   }
 }
 
-export function clearSavedTimerData(): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (err) {
-    console.error('Failed to clear saved match state:', err);
-  }
-}
-
 export function getDefaultInitialState(config: MatchConfig = DEFAULT_CONFIG): MatchState {
-  const durationMs = config.periodDurationMinutes * 60 * 1000;
+  const clock = getStageClock(config, 'PERIOD', 1);
   return {
     status: 'STOPPED',
     stage: 'PERIOD',
     currentPeriod: 1,
-    remainingMs: config.countDirection === 'DOWN' ? durationMs : 0,
-    totalDurationMs: durationMs,
+    remainingMs: clock.startMs,
+    totalDurationMs: clock.durationMs,
     goalieSaves: createDefaultGoalieSaves(),
   };
 }

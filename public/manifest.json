@@ -1,7 +1,7 @@
 {
   "name": "Floorball Timer - Salibandykello",
   "short_name": "Salibandykello",
-  "description": "Mobile-optimized timer for floorball matches with arena buzzer horn, period progression, and screen wake lock.",
+  "description": "Mobile-optimized timer for floorball matches with period progression, goalie save tracking, and screen wake lock.",
   "start_url": "/floorballtimer-web/",
   "scope": "/floorballtimer-web/",
   "id": "/floorballtimer-web/",

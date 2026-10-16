@@ -6,17 +6,44 @@
   --bg-surface-card: #1c2638;
   --bg-overlay: rgba(5, 8, 14, 0.85);
 
-  --accent-orange: #ff5722;
-  --accent-orange-glow: rgba(255, 87, 34, 0.45);
-  --accent-orange-hover: #ff7043;
-  --accent-amber: #ffb300;
-  --accent-cyan: #00e5ff;
-  --accent-green: #00e676;
-  --accent-red: #ff334b;
+  /* Semantic colors: each color has one meaning.
+     *-text variants are for text/borders on the dark background,
+     on-* colors are for text on a solid fill of that color,
+     *-rgb triplets are for translucent tints: rgba(var(--go-rgb), 0.15) */
+
+  /* Go / add: start, resume, +1 save */
+  --go: #00e676;
+  --go-strong: #00c853;
+  --on-go: #062b14;
+  --go-rgb: 0, 230, 118;
+
+  /* Stop / attention: pause, game stopped */
+  --stop: #ff8a00;
+  --stop-text: #ff9a3c;
+  --on-stop: #1f0d00;
+  --stop-rgb: 255, 138, 0;
+
+  /* Primary / move on: next period, selections, neutral confirms */
+  --primary: #2563eb;
+  --primary-text: #4da3ff;
+  --on-primary: #ffffff;
+  --primary-rgb: 77, 163, 255;
+
+  /* Danger / alarm: resets, period-end alarm, -1 */
+  --danger: #d61f36;
+  --danger-text: #ff6b7d;
+  --on-danger: #ffffff;
+  --danger-rgb: 255, 51, 75;
+
+  /* Teams */
+  --team-home: #00e5ff;
+  --team-home-rgb: 0, 229, 255;
+  --team-away: #b388ff;
+  --team-away-rgb: 179, 136, 255;
 
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-dim: #7d8ca3;
 
   --border-subtle: #253347;
   --border-focus: #3b82f6;
@@ -31,7 +58,6 @@
 
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 24px var(--accent-orange-glow);
 }
 
 *, *::before, *::after {
@@ -77,6 +103,6 @@ button:active {
 }
 
 button:focus-visible {
-  outline: 2px solid var(--accent-orange);
+  outline: 2px solid var(--primary-text);
   outline-offset: 2px;
 }

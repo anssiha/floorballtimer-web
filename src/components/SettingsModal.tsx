@@ -1,396 +1,321 @@
-import React, { useState, useRef } from 'react';
-import type { MatchConfig, Language, CountDirection } from '../types/timer';
+import React, { useState } from 'react';
+import type { MatchConfig, MatchState, Language } from '../types/timer';
 import {
   PERIOD_DURATION_PRESETS,
   BREAK_DURATION_PRESETS,
   OVERTIME_DURATION_PRESETS,
 } from '../constants/presets';
 import { t } from '../i18n/translations';
-import { playArenaHorn } from '../services/sound';
+import { formatMMSS } from '../utils/format';
+import { isMatchStarted } from '../utils/timerMath';
+import { Modal } from './Modal';
+import { NewMatchModal } from './NewMatchModal';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   config: MatchConfig;
+  state: MatchState;
   onUpdateConfig: (newConfig: Partial<MatchConfig>) => void;
   language: Language;
   onLanguageChange: (lang: Language) => void;
   onResetMatch: () => void;
 }
 
+interface DurationPickerProps {
+  presets: number[];
+  value: number;
+  min: number;
+  max: number;
+  disabled: boolean;
+  customLabel: string;
+  onChange: (minutes: number) => void;
+}
+
+// Preset minute buttons plus a "Custom..." button that reveals a number input
+const DurationPicker: React.FC<DurationPickerProps> = ({
+  presets,
+  value,
+  min,
+  max,
+  disabled,
+  customLabel,
+  onChange,
+}) => {
+  const [showCustom, setShowCustom] = useState(!presets.includes(value));
+
+  return (
+    <>
+      <div className="presets-row">
+        {presets.map((mins) => (
+          <button
+            key={mins}
+            type="button"
+            className={`preset-btn ${value === mins && !showCustom ? 'active' : ''}`}
+            disabled={disabled}
+            onClick={() => {
+              setShowCustom(false);
+              onChange(mins);
+            }}
+          >
+            {mins} min
+          </button>
+        ))}
+        <button
+          type="button"
+          className={`preset-btn ${showCustom ? 'active' : ''}`}
+          disabled={disabled}
+          onClick={() => setShowCustom(true)}
+        >
+          {customLabel}
+        </button>
+      </div>
+
+      {showCustom && (
+        <div className="custom-input-wrap">
+          <input
+            type="number"
+            min={min}
+            max={max}
+            value={value}
+            disabled={disabled}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              if (!isNaN(val) && val >= min && val <= max) {
+                onChange(val);
+              }
+            }}
+          />
+          <span className="unit-label">min</span>
+        </div>
+      )}
+    </>
+  );
+};
+
+interface ToggleRowProps {
+  label: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (checked: boolean) => void;
+}
+
+// The whole row is a <label>, so tapping the text toggles the switch too
+const ToggleRow: React.FC<ToggleRowProps> = ({ label, checked, disabled = false, onChange }) => (
+  <label className={`setting-group toggle-group ${disabled ? 'disabled' : ''}`}>
+    <span className="setting-label">{label}</span>
+    <span className="switch">
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span className="slider round"></span>
+    </span>
+  </label>
+);
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   config,
+  state,
   onUpdateConfig,
   language,
   onLanguageChange,
   onResetMatch,
 }) => {
-  const [activeTab, setActiveTab] = useState<'match' | 'app'>('match');
-  const bodyRef = useRef<HTMLDivElement>(null);
-  const [showCustomPeriod, setShowCustomPeriod] = useState(
-    !PERIOD_DURATION_PRESETS.includes(config.periodDurationMinutes)
-  );
-  const [showCustomBreak, setShowCustomBreak] = useState(
-    !BREAK_DURATION_PRESETS.includes(config.breakDurationMinutes)
-  );
+  const [showNewMatchConfirm, setShowNewMatchConfirm] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleTabChange = (tab: 'match' | 'app') => {
-    setActiveTab(tab);
-    if (bodyRef.current) {
-      bodyRef.current.scrollTop = 0;
-    }
-  };
+  // Period count, length and clock direction can't change once the match has started.
+  // Break and overtime settings stay editable, except while that stage is in progress.
+  const formatLocked = isMatchStarted(state);
+  const breakLocked = state.stage === 'BREAK';
+  const overtimeLocked = state.stage === 'OVERTIME';
 
-  const handleTestBuzzer = () => {
-    playArenaHorn();
-  };
-
-  const handleResetConfirm = () => {
-    if (window.confirm(t(language, 'resetMatchConfirm'))) {
-      onResetMatch();
-      onClose();
-    }
-  };
+  const periodMs = config.periodDurationMinutes * 60 * 1000;
+  const countUpEnd = formatMMSS(config.periodCount * periodMs, 'UP').formatted;
+  const countDownStart = formatMMSS(periodMs, 'DOWN').formatted;
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div
-        className="modal-content settings-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-header">
-          <div className="title-row">
-            <span className="icon">⚙️</span>
-            <h3>{t(language, 'settings')}</h3>
-          </div>
-          <button
-            type="button"
-            className="modal-close-btn"
-            onClick={onClose}
-            aria-label={t(language, 'cancel')}
-          >
-            ✕
-          </button>
+    <Modal onClose={onClose} className="settings-modal" ariaLabel={t(language, 'settings')}>
+      <div className="modal-header">
+        <div className="title-row">
+          <span className="icon">⚙️</span>
+          <h3>{t(language, 'settings')}</h3>
         </div>
-
-        {/* Tab Navigation */}
-        <div className="settings-tabs">
-          <button
-            type="button"
-            className={`settings-tab-btn ${activeTab === 'match' ? 'active' : ''}`}
-            onClick={() => handleTabChange('match')}
-          >
-            ⏱ {t(language, 'tabMatch')}
-          </button>
-          <button
-            type="button"
-            className={`settings-tab-btn ${activeTab === 'app' ? 'active' : ''}`}
-            onClick={() => handleTabChange('app')}
-          >
-            📱 {t(language, 'tabApp')}
-          </button>
-        </div>
-
-        <div className="settings-body" ref={bodyRef}>
-          {activeTab === 'match' ? (
-            <>
-              {/* Number of Periods */}
-              <div className="setting-group">
-                <label className="setting-label">{t(language, 'periodCount')}</label>
-                <div className="btn-segmented">
-                  {([1, 2, 3] as const).map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      className={`segment-btn ${config.periodCount === num ? 'active' : ''}`}
-                      onClick={() => onUpdateConfig({ periodCount: num })}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Period Duration */}
-              <div className="setting-group">
-                <label className="setting-label">{t(language, 'periodLength')}</label>
-                <div className="presets-row">
-                  {PERIOD_DURATION_PRESETS.map((mins) => (
-                    <button
-                      key={mins}
-                      type="button"
-                      className={`preset-btn ${
-                        config.periodDurationMinutes === mins && !showCustomPeriod
-                          ? 'active'
-                          : ''
-                      }`}
-                      onClick={() => {
-                        setShowCustomPeriod(false);
-                        onUpdateConfig({ periodDurationMinutes: mins });
-                      }}
-                    >
-                      {mins} min
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    className={`preset-btn ${showCustomPeriod ? 'active' : ''}`}
-                    onClick={() => setShowCustomPeriod(true)}
-                  >
-                    {t(language, 'custom')}
-                  </button>
-                </div>
-
-                {showCustomPeriod && (
-                  <div className="custom-input-wrap">
-                    <input
-                      type="number"
-                      min="1"
-                      max="60"
-                      value={config.periodDurationMinutes}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        if (!isNaN(val) && val > 0) {
-                          onUpdateConfig({ periodDurationMinutes: val });
-                        }
-                      }}
-                    />
-                    <span className="unit-label">min</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Optional Break Toggle & Duration */}
-              <div className="setting-group toggle-group">
-                <div className="toggle-info">
-                  <span className="setting-label">{t(language, 'breakEnabled')}</span>
-                </div>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={config.breakEnabled}
-                    onChange={(e) => onUpdateConfig({ breakEnabled: e.target.checked })}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </div>
-
-              {config.breakEnabled && (
-                <div className="setting-group sub-group">
-                  <label className="setting-label">{t(language, 'breakLength')}</label>
-                  <div className="presets-row">
-                    {BREAK_DURATION_PRESETS.map((mins) => (
-                      <button
-                        key={mins}
-                        type="button"
-                        className={`preset-btn ${
-                          config.breakDurationMinutes === mins && !showCustomBreak
-                            ? 'active'
-                            : ''
-                        }`}
-                        onClick={() => {
-                          setShowCustomBreak(false);
-                          onUpdateConfig({ breakDurationMinutes: mins });
-                        }}
-                      >
-                        {mins} min
-                      </button>
-                    ))}
-                    <button
-                      type="button"
-                      className={`preset-btn ${showCustomBreak ? 'active' : ''}`}
-                      onClick={() => setShowCustomBreak(true)}
-                    >
-                      {t(language, 'custom')}
-                    </button>
-                  </div>
-
-                  {showCustomBreak && (
-                    <div className="custom-input-wrap">
-                      <input
-                        type="number"
-                        min="0"
-                        max="30"
-                        value={config.breakDurationMinutes}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value, 10);
-                          if (!isNaN(val) && val >= 0) {
-                            onUpdateConfig({ breakDurationMinutes: val });
-                          }
-                        }}
-                      />
-                      <span className="unit-label">min</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Overtime Configuration ("Jatkoerä") */}
-              <div className="setting-group toggle-group">
-                <div className="toggle-info">
-                  <span className="setting-label">{t(language, 'overtimeOption')}</span>
-                </div>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={config.overtimeEnabled}
-                    onChange={(e) => onUpdateConfig({ overtimeEnabled: e.target.checked })}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </div>
-
-              {config.overtimeEnabled && (
-                <div className="setting-group sub-group">
-                  <label className="setting-label">{t(language, 'overtimeLength')}</label>
-                  <div className="presets-row">
-                    {OVERTIME_DURATION_PRESETS.map((mins) => (
-                      <button
-                        key={mins}
-                        type="button"
-                        className={`preset-btn ${
-                          config.overtimeDurationMinutes === mins ? 'active' : ''
-                        }`}
-                        onClick={() => onUpdateConfig({ overtimeDurationMinutes: mins })}
-                      >
-                        {mins} min
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Count Direction */}
-              <div className="setting-group">
-                <label className="setting-label">{t(language, 'countDirection')}</label>
-                <div className="btn-segmented">
-                  <button
-                    type="button"
-                    className={`segment-btn ${config.countDirection === 'UP' ? 'active' : ''}`}
-                    onClick={() => onUpdateConfig({ countDirection: 'UP' as CountDirection })}
-                  >
-                    {t(language, 'countUp')}
-                  </button>
-                  <button
-                    type="button"
-                    className={`segment-btn ${config.countDirection === 'DOWN' ? 'active' : ''}`}
-                    onClick={() => onUpdateConfig({ countDirection: 'DOWN' as CountDirection })}
-                  >
-                    {t(language, 'countDown')}
-                  </button>
-                </div>
-              </div>
-
-              {/* Reset Entire Match */}
-              <div className="setting-group reset-group">
-                <button
-                  type="button"
-                  className="btn-danger-reset"
-                  onClick={handleResetConfirm}
-                >
-                  ⚠️ {t(language, 'resetMatch')}
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Language selection */}
-              <div className="setting-group">
-                <label className="setting-label">{t(language, 'language')}</label>
-                <div className="btn-segmented">
-                  <button
-                    type="button"
-                    className={`segment-btn ${language === 'fi' ? 'active' : ''}`}
-                    onClick={() => onLanguageChange('fi')}
-                  >
-                    Suomi (FI)
-                  </button>
-                  <button
-                    type="button"
-                    className={`segment-btn ${language === 'en' ? 'active' : ''}`}
-                    onClick={() => onLanguageChange('en')}
-                  >
-                    English (EN)
-                  </button>
-                </div>
-              </div>
-
-              {/* Goalie Saves Tracking Toggle */}
-              <div className="setting-group toggle-group">
-                <div className="toggle-info">
-                  <span className="setting-label">{t(language, 'trackGoalieSaves')}</span>
-                </div>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={config.trackGoalieSaves}
-                    onChange={(e) => onUpdateConfig({ trackGoalieSaves: e.target.checked })}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </div>
-
-              {/* Keep Awake on Pause Toggle */}
-              <div className="setting-group toggle-group">
-                <div className="toggle-info">
-                  <span className="setting-label">{t(language, 'keepAwakeOnPause')}</span>
-                </div>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={config.keepAwakeOnPause}
-                    onChange={(e) => onUpdateConfig({ keepAwakeOnPause: e.target.checked })}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </div>
-
-              {/* Sound Horn */}
-              <div className="setting-group toggle-group">
-                <div className="toggle-info">
-                  <span className="setting-label">{t(language, 'soundHorn')}</span>
-                </div>
-                <div className="sound-toggle-row">
-                  <button
-                    type="button"
-                    className="btn-test-sound"
-                    onClick={handleTestBuzzer}
-                  >
-                    📢 {t(language, 'testSound')}
-                  </button>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={config.soundEnabled}
-                      onChange={(e) => onUpdateConfig({ soundEnabled: e.target.checked })}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Haptics */}
-              <div className="setting-group toggle-group">
-                <div className="toggle-info">
-                  <span className="setting-label">{t(language, 'haptics')}</span>
-                </div>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={config.hapticsEnabled}
-                    onChange={(e) => onUpdateConfig({ hapticsEnabled: e.target.checked })}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </div>
-            </>
-          )}
-        </div>
+        <button type="button" className="settings-done-btn" onClick={onClose}>
+          {t(language, 'done')}
+        </button>
       </div>
-    </div>
+
+      <div className="settings-body">
+        {/* Match format */}
+        <h4 className="settings-section-title">{t(language, 'sectionMatch')}</h4>
+
+        {formatLocked && (
+          <p className="settings-lock-note">🔒 {t(language, 'formatLockedNote')}</p>
+        )}
+
+        <div className="setting-group">
+          <span className="setting-label">{t(language, 'periodCount')}</span>
+          <div className="btn-segmented">
+            {([1, 2, 3] as const).map((num) => (
+              <button
+                key={num}
+                type="button"
+                className={`segment-btn ${config.periodCount === num ? 'active' : ''}`}
+                disabled={formatLocked}
+                onClick={() => onUpdateConfig({ periodCount: num })}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="setting-group">
+          <span className="setting-label">{t(language, 'periodLength')}</span>
+          <DurationPicker
+            presets={PERIOD_DURATION_PRESETS}
+            value={config.periodDurationMinutes}
+            min={1}
+            max={60}
+            disabled={formatLocked}
+            customLabel={t(language, 'custom')}
+            onChange={(mins) => onUpdateConfig({ periodDurationMinutes: mins })}
+          />
+        </div>
+
+        <div className="setting-group">
+          <span className="setting-label">{t(language, 'countDirection')}</span>
+          <div className="btn-segmented">
+            <button
+              type="button"
+              className={`segment-btn ${config.countDirection === 'UP' ? 'active' : ''}`}
+              disabled={formatLocked}
+              onClick={() => onUpdateConfig({ countDirection: 'UP' })}
+            >
+              {t(language, 'countUp', { end: countUpEnd })}
+            </button>
+            <button
+              type="button"
+              className={`segment-btn ${config.countDirection === 'DOWN' ? 'active' : ''}`}
+              disabled={formatLocked}
+              onClick={() => onUpdateConfig({ countDirection: 'DOWN' })}
+            >
+              {t(language, 'countDown', { start: countDownStart })}
+            </button>
+          </div>
+        </div>
+
+        <ToggleRow
+          label={t(language, 'breakEnabled')}
+          checked={config.breakEnabled}
+          disabled={breakLocked}
+          onChange={(checked) => onUpdateConfig({ breakEnabled: checked })}
+        />
+        {config.breakEnabled && (
+          <div className="setting-group sub-group">
+            <span className="setting-label">{t(language, 'breakLength')}</span>
+            <DurationPicker
+              presets={BREAK_DURATION_PRESETS}
+              value={config.breakDurationMinutes}
+              min={1}
+              max={30}
+              disabled={breakLocked}
+              customLabel={t(language, 'custom')}
+              onChange={(mins) => onUpdateConfig({ breakDurationMinutes: mins })}
+            />
+          </div>
+        )}
+
+        <ToggleRow
+          label={t(language, 'overtimeOption')}
+          checked={config.overtimeEnabled}
+          disabled={overtimeLocked}
+          onChange={(checked) => onUpdateConfig({ overtimeEnabled: checked })}
+        />
+        {config.overtimeEnabled && (
+          <div className="setting-group sub-group">
+            <span className="setting-label">{t(language, 'overtimeLength')}</span>
+            <DurationPicker
+              presets={OVERTIME_DURATION_PRESETS}
+              value={config.overtimeDurationMinutes}
+              min={1}
+              max={30}
+              disabled={overtimeLocked}
+              customLabel={t(language, 'custom')}
+              onChange={(mins) => onUpdateConfig({ overtimeDurationMinutes: mins })}
+            />
+          </div>
+        )}
+
+        {/* Whole-match reset lives here, away from the mid-game controls on the main
+            screen; it also unlocks the match format */}
+        <button
+          type="button"
+          className="btn-danger-reset"
+          onClick={() => setShowNewMatchConfirm(true)}
+        >
+          {t(language, 'resetMatch')}
+        </button>
+
+        {/* Tracking */}
+        <h4 className="settings-section-title">{t(language, 'sectionTracking')}</h4>
+
+        <ToggleRow
+          label={t(language, 'trackGoalieSaves')}
+          checked={config.trackGoalieSaves}
+          onChange={(checked) => onUpdateConfig({ trackGoalieSaves: checked })}
+        />
+
+        {/* Device */}
+        <h4 className="settings-section-title">{t(language, 'sectionDevice')}</h4>
+
+        <div className="setting-group">
+          <span className="setting-label">{t(language, 'language')}</span>
+          <div className="btn-segmented">
+            <button
+              type="button"
+              className={`segment-btn ${language === 'fi' ? 'active' : ''}`}
+              onClick={() => onLanguageChange('fi')}
+            >
+              Suomi
+            </button>
+            <button
+              type="button"
+              className={`segment-btn ${language === 'en' ? 'active' : ''}`}
+              onClick={() => onLanguageChange('en')}
+            >
+              English
+            </button>
+          </div>
+        </div>
+
+        <ToggleRow
+          label={t(language, 'keepAwakeOnPause')}
+          checked={config.keepAwakeOnPause}
+          onChange={(checked) => onUpdateConfig({ keepAwakeOnPause: checked })}
+        />
+
+        <ToggleRow
+          label={t(language, 'haptics')}
+          checked={config.hapticsEnabled}
+          onChange={(checked) => onUpdateConfig({ hapticsEnabled: checked })}
+        />
+      </div>
+
+      {showNewMatchConfirm && (
+        <NewMatchModal
+          language={language}
+          onConfirm={onResetMatch}
+          onClose={() => setShowNewMatchConfirm(false)}
+        />
+      )}
+    </Modal>
   );
 };
