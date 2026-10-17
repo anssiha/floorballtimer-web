@@ -11,6 +11,7 @@ import {
   isMatchStarted,
   statusAfterAdjust,
   reopenFinishedMatch,
+  syncClockToConfig,
 } from './timerMath';
 
 const MIN = 60 * 1000;
@@ -191,5 +192,54 @@ describe('reopenFinishedMatch', () => {
   it('returns to "ended" when the clock had run out', () => {
     const state = makeState({ status: 'MATCH_FINISHED', currentPeriod: 3, remainingMs: 60 * MIN });
     expect(reopenFinishedMatch(up, state)).toMatchObject({ status: 'PERIOD_ENDED', remainingMs: 60 * MIN });
+  });
+});
+
+describe('restartClockEachPeriod', () => {
+  const restart: MatchConfig = { ...up, restartClockEachPeriod: true };
+
+  it('runs every period and overtime from 00:00 when counting up', () => {
+    for (const period of [1, 2, 3]) {
+      expect(getStageClock(restart, 'PERIOD', period)).toMatchObject({ startMs: 0, endMs: 20 * MIN });
+    }
+    expect(getStageClock(restart, 'OVERTIME', 3)).toMatchObject({ startMs: 0, endMs: 5 * MIN });
+  });
+
+  it('has no effect when counting down', () => {
+    const downRestart: MatchConfig = { ...down, restartClockEachPeriod: true };
+    expect(getStageClock(downRestart, 'PERIOD', 2)).toEqual(getStageClock(down, 'PERIOD', 2));
+  });
+
+  it('keeps the time played in the period when switched', () => {
+    const playing = makeState({ status: 'PAUSED', currentPeriod: 2, remainingMs: 25.5 * MIN });
+    expect(syncClockToConfig(up, restart, playing)).toMatchObject({ status: 'PAUSED', remainingMs: 5.5 * MIN });
+    expect(syncClockToConfig(restart, up, { ...playing, remainingMs: 5.5 * MIN })).toMatchObject({
+      remainingMs: 25.5 * MIN,
+    });
+  });
+
+  it('keeps an adjusted clock of a waiting period', () => {
+    const waiting = makeState({ status: 'STOPPED', currentPeriod: 2, remainingMs: 21.5 * MIN });
+    expect(syncClockToConfig(up, restart, waiting)).toMatchObject({ status: 'STOPPED', remainingMs: 1.5 * MIN });
+  });
+
+  it('keeps an ended period at its end, so it still reads as ended', () => {
+    const ended = makeState({ status: 'PERIOD_ENDED', currentPeriod: 3, remainingMs: 60 * MIN });
+    const synced = syncClockToConfig(up, restart, ended);
+    expect(synced.remainingMs).toBe(getStageClock(restart, 'PERIOD', 3).endMs);
+    expect(reopenFinishedMatch(restart, { ...synced, status: 'MATCH_FINISHED' }).status).toBe('PERIOD_ENDED');
+  });
+
+  it('maps time between count directions and cuts it to a shortened period', () => {
+    const waiting = makeState({ status: 'STOPPED', currentPeriod: 1, remainingMs: 0 });
+    expect(syncClockToConfig(up, down, waiting).remainingMs).toBe(20 * MIN);
+    const short: MatchConfig = { ...up, periodDurationMinutes: 15 };
+    const late = makeState({ status: 'STOPPED', currentPeriod: 1, remainingMs: 18 * MIN });
+    expect(syncClockToConfig(up, short, late)).toMatchObject({ remainingMs: 15 * MIN, totalDurationMs: 15 * MIN });
+  });
+
+  it('leaves breaks alone', () => {
+    const brk = makeState({ status: 'RUNNING', stage: 'BREAK', remainingMs: 7 * MIN });
+    expect(syncClockToConfig(up, restart, brk)).toBe(brk);
   });
 });

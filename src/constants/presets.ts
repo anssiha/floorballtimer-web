@@ -12,6 +12,7 @@ export const DEFAULT_CONFIG: MatchConfig = {
   overtimeEnabled: false,
   overtimeDurationMinutes: 20,
   countDirection: 'UP',
+  restartClockEachPeriod: false,
   hapticsEnabled: true,
   keepAwakeOnPause: true,
   trackGoalieSaves: true,

@@ -1022,8 +1022,16 @@ input:checked + .slider:before {
 
 .save-meta-info {
   min-width: 0;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
   line-height: 1.25;
   font-size: 0.7rem;
   font-weight: 700;
@@ -1534,6 +1542,7 @@ input:checked + .slider:before {
   }
 
   .save-meta-info {
+    min-height: 34px;
     font-size: 0.6rem;
   }
 
@@ -1591,3 +1600,69 @@ input:checked + .slider:before {
 
 
 
+
+/* Saves summary (per period and total) */
+.saves-summary-modal {
+  max-width: 440px;
+}
+
+.saves-summary-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.saves-summary-team h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.saves-summary-home h4 {
+  color: rgb(var(--team-home-rgb));
+}
+
+.saves-summary-away h4 {
+  color: rgb(var(--team-away-rgb));
+}
+
+.saves-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+
+.saves-table th,
+.saves-table td {
+  padding: 8px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-main);
+}
+
+.saves-table thead th {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.saves-table th:first-child {
+  text-align: left;
+  font-weight: 800;
+}
+
+.saves-table tfoot th,
+.saves-table tfoot td {
+  font-weight: 800;
+  border-bottom: none;
+}
+
+.saves-table .saves-total-cell {
+  font-weight: 800;
+}

@@ -3,6 +3,7 @@ import type { MatchState, MatchConfig, Language } from '../types/timer';
 import { t } from '../i18n/translations';
 import { Modal } from './Modal';
 import { NewMatchModal } from './NewMatchModal';
+import { SaveSummaryModal } from './SaveSummaryModal';
 
 interface ControlsProps {
   state: MatchState;
@@ -28,6 +29,7 @@ export const Controls: React.FC<ControlsProps> = ({
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showProceedConfirm, setShowProceedConfirm] = useState(false);
   const [showNewMatchConfirm, setShowNewMatchConfirm] = useState(false);
+  const [showSavesSummary, setShowSavesSummary] = useState(false);
 
   const isRunning = state.status === 'RUNNING';
   const isPeriodEnded = state.status === 'PERIOD_ENDED';
@@ -186,7 +188,29 @@ export const Controls: React.FC<ControlsProps> = ({
             </svg>
           </button>
         )}
+
+        {/* Finished match: saves per period for the match report */}
+        {isMatchFinished && config.trackGoalieSaves && (
+          <button
+            type="button"
+            className="secondary-btn"
+            onClick={() => setShowSavesSummary(true)}
+            title={t(language, 'savesSummary')}
+          >
+            <span>🥅 {t(language, 'savesSummaryShort')}</span>
+          </button>
+        )}
       </div>
+
+      {showSavesSummary && (
+        <SaveSummaryModal
+          goalieSaves={state.goalieSaves}
+          config={config}
+          state={state}
+          language={language}
+          onClose={() => setShowSavesSummary(false)}
+        />
+      )}
 
       {/* Correction dialog: previous period / restart this period */}
       {showResetConfirm && (

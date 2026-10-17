@@ -137,7 +137,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const overtimeLocked = state.stage === 'OVERTIME';
 
   const periodMs = config.periodDurationMinutes * 60 * 1000;
-  const countUpEnd = formatMMSS(config.periodCount * periodMs, 'UP').formatted;
+  const countUpEnd = formatMMSS(
+    config.restartClockEachPeriod ? periodMs : config.periodCount * periodMs,
+    'UP'
+  ).formatted;
   const countDownStart = formatMMSS(periodMs, 'DOWN').formatted;
 
   return (
@@ -211,6 +214,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Unlike the rest of the format, this can be switched at any time; the time played
+            in the current period is kept */}
+        {config.countDirection === 'UP' && (
+          <ToggleRow
+            label={t(language, 'restartClockEachPeriod')}
+            checked={config.restartClockEachPeriod}
+            onChange={(checked) => onUpdateConfig({ restartClockEachPeriod: checked })}
+          />
+        )}
 
         <ToggleRow
           label={t(language, 'breakEnabled')}

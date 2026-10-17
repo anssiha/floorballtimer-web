@@ -27,6 +27,9 @@ export function loadSavedTimerData(): SavedTimerData | null {
         delete legacyConfig.soundEnabled;
         delete legacyConfig.autoStartBreak;
       }
+      if (parsed.config && parsed.config.restartClockEachPeriod === undefined) {
+        parsed.config.restartClockEachPeriod = false;
+      }
       if (parsed.config && parsed.config.trackGoalieSaves === undefined) {
         parsed.config.trackGoalieSaves = true;
       }

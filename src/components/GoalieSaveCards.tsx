@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import type { MatchState, Language } from '../types/timer';
+import type { MatchState, MatchConfig, Language } from '../types/timer';
 import { t, formatSaveCount } from '../i18n/translations';
 import { getGoalieTotalSaves, getTeamTotalSaves, getTeamLabel } from '../utils/goalie';
 import { GoalieChangeModal } from './GoalieChangeModal';
+import { SaveSummaryModal } from './SaveSummaryModal';
 
 interface GoalieSaveCardsProps {
   state: MatchState;
+  config: MatchConfig;
   language: Language;
   onAddSave: (team: 'home' | 'away') => void;
   onRemoveSave: (team: 'home' | 'away') => void;
@@ -16,6 +18,7 @@ interface GoalieSaveCardsProps {
 
 export const GoalieSaveCards: React.FC<GoalieSaveCardsProps> = ({
   state,
+  config,
   language,
   onAddSave,
   onRemoveSave,
@@ -24,6 +27,7 @@ export const GoalieSaveCards: React.FC<GoalieSaveCardsProps> = ({
   onRenameTeam,
 }) => {
   const [modalTeam, setModalTeam] = useState<'home' | 'away' | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
   // Bumped on every +1/-1 so the feedback animation elements remount and replay
   const [feedback, setFeedback] = useState<
     Partial<Record<'home' | 'away', { kind: 'add' | 'remove'; count: number }>>
@@ -108,12 +112,19 @@ export const GoalieSaveCards: React.FC<GoalieSaveCardsProps> = ({
         </button>
 
         <div className="goalie-card-footer">
-          <span className="save-meta-info">
+          {/* Tapping the period/total info opens the per-period summary of both teams */}
+          <button
+            type="button"
+            className="save-meta-info"
+            onClick={() => setShowSummary(true)}
+            title={t(language, 'savesSummary')}
+            aria-label={`${t(language, 'savesSummary')}: ${periodBadge}, ${t(language, 'savesTotal')} ${teamTotal}`}
+          >
             <span>{periodBadge}</span>
             <span>
-              {t(language, 'savesTotal')} {teamTotal}
+              {t(language, 'savesTotal')} {teamTotal} ▸
             </span>
-          </span>
+          </button>
           <button
             type="button"
             className="btn-save-minus"
@@ -135,6 +146,16 @@ export const GoalieSaveCards: React.FC<GoalieSaveCardsProps> = ({
     <div className="goalie-saves-container">
       {renderTeamCard('home')}
       {renderTeamCard('away')}
+
+      {showSummary && (
+        <SaveSummaryModal
+          goalieSaves={goalieSaves}
+          config={config}
+          state={state}
+          language={language}
+          onClose={() => setShowSummary(false)}
+        />
+      )}
 
       {modalTeam && (
         <GoalieChangeModal

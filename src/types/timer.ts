@@ -14,6 +14,8 @@ export interface MatchConfig {
   overtimeEnabled: boolean;
   overtimeDurationMinutes: number; // e.g. 5
   countDirection: CountDirection;
+  // Count UP only: every period (and overtime) starts from 00:00 instead of continuing
+  restartClockEachPeriod: boolean;
   hapticsEnabled: boolean;
   keepAwakeOnPause: boolean;
   trackGoalieSaves: boolean;

@@ -10,6 +10,8 @@ const MS_PER_MINUTE = 60 * 1000;
  * - Count UP: time runs continuously across the match, e.g. with 3 x 20 min
  *   period 1 is 00:00 -> 20:00, period 2 is 20:00 -> 40:00, period 3 is 40:00 -> 60:00
  *   and overtime continues from 60:00.
+ * - Count UP with `restartClockEachPeriod`: every period and overtime runs from 00:00
+ *   (e.g. 00:00 -> 20:00 three times).
  */
 export interface StageClock {
   startMs: number;
@@ -36,19 +38,15 @@ export function getStageClock(
     if (countsDown) {
       return { startMs: durationMs, endMs: 0, durationMs, countsDown };
     }
-    const regularEndMs = config.periodCount * periodMs;
-    return { startMs: regularEndMs, endMs: regularEndMs + durationMs, durationMs, countsDown };
+    const startMs = config.restartClockEachPeriod ? 0 : config.periodCount * periodMs;
+    return { startMs, endMs: startMs + durationMs, durationMs, countsDown };
   }
 
   if (countsDown) {
     return { startMs: periodMs, endMs: 0, durationMs: periodMs, countsDown };
   }
-  return {
-    startMs: (period - 1) * periodMs,
-    endMs: period * periodMs,
-    durationMs: periodMs,
-    countsDown,
-  };
+  const startMs = config.restartClockEachPeriod ? 0 : (period - 1) * periodMs;
+  return { startMs, endMs: startMs + periodMs, durationMs: periodMs, countsDown };
 }
 
 /**
@@ -138,6 +136,38 @@ export function moveToStage(
  */
 export function isMatchStarted(state: Pick<MatchState, 'stage' | 'currentPeriod' | 'status'>): boolean {
   return !(state.stage === 'PERIOD' && state.currentPeriod === 1 && state.status === 'STOPPED');
+}
+
+/**
+ * Keeps the time played in the current period or overtime when the clock layout changes
+ * (length, direction, restart each period), e.g. 25:30 in period 2 becomes 05:30 when
+ * periods start from 00:00. Time beyond a shortened stage is cut to its end.
+ * Breaks have their own clock and are left alone.
+ */
+export function syncClockToConfig(
+  prevConfig: MatchConfig,
+  config: MatchConfig,
+  state: MatchState
+): MatchState {
+  if (state.stage === 'BREAK') return state;
+  const prevClock = getStageClock(prevConfig, state.stage, state.currentPeriod);
+  const clock = getStageClock(config, state.stage, state.currentPeriod);
+  if (
+    prevClock.startMs === clock.startMs &&
+    prevClock.endMs === clock.endMs &&
+    prevClock.countsDown === clock.countsDown
+  ) {
+    return state;
+  }
+  const elapsedMs = prevClock.countsDown
+    ? prevClock.startMs - state.remainingMs
+    : state.remainingMs - prevClock.startMs;
+  const keptMs = Math.min(clock.durationMs, Math.max(0, elapsedMs));
+  return {
+    ...state,
+    totalDurationMs: clock.durationMs,
+    remainingMs: clock.countsDown ? clock.startMs - keptMs : clock.startMs + keptMs,
+  };
 }
 
 /**

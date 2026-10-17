@@ -20,6 +20,7 @@ import {
   moveToStage,
   statusAfterAdjust,
   reopenFinishedMatch,
+  syncClockToConfig,
 } from '../utils/timerMath';
 
 // Tick interval: 10 Hz is plenty for a MM:SS display and keeps renders/battery use low
@@ -349,34 +350,16 @@ export function useTimer() {
     });
   }, [config]);
 
-  // Update configuration
-  const updateConfig = useCallback((newConfig: Partial<MatchConfig>) => {
-    setConfigState((prev) => ({ ...prev, ...newConfig }));
-  }, []);
-
-  // When the period length or count direction changes while a period is STOPPED (i.e. before
-  // the match starts; the settings lock it afterwards), move the clock to the new period start
-  const clockFormatRef = useRef({
-    periodDurationMinutes: config.periodDurationMinutes,
-    countDirection: config.countDirection,
-  });
-  useEffect(() => {
-    const prev = clockFormatRef.current;
-    if (
-      prev.periodDurationMinutes === config.periodDurationMinutes &&
-      prev.countDirection === config.countDirection
-    ) {
-      return;
-    }
-    clockFormatRef.current = {
-      periodDurationMinutes: config.periodDurationMinutes,
-      countDirection: config.countDirection,
-    };
-    setState((s) => {
-      if (s.status !== 'STOPPED' || s.stage !== 'PERIOD') return s;
-      return moveToStage(config, s, 'PERIOD', s.currentPeriod, 'start', 'STOPPED');
-    });
-  }, [config]);
+  // Update configuration. The clock is moved in the same update, so no render (or tick)
+  // ever sees the new clock layout with the old time.
+  const updateConfig = useCallback(
+    (newConfig: Partial<MatchConfig>) => {
+      const next = { ...config, ...newConfig };
+      setConfigState(next);
+      setState((s) => syncClockToConfig(config, next, s));
+    },
+    [config]
+  );
 
   const setLanguage = useCallback((lang: Language) => {
     triggerButtonHaptic();

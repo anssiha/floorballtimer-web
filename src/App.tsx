@@ -81,6 +81,7 @@ export const App: React.FC = () => {
         {config.trackGoalieSaves && (
           <GoalieSaveCards
             state={state}
+            config={config}
             language={language}
             onAddSave={addGoalieSave}
             onRemoveSave={removeGoalieSave}

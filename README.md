@@ -23,11 +23,13 @@ Kello on optimoitu sekä vaakasuuntaisille että pystysuuntaisille näytöille j
 | **Erätauko** | Mahdollisuus ottaa käyttöön erätauko (5, 10, 12 tai 15 min tai oma valinta). Erän päätyttyä tauon voi käynnistää tai hypätä suoraan seuraavaan erään. |
 | **Jatkoerä (Overtime)** | Valinnainen jatkoerä (5, 10 tai 20 min), joka aktivoituu varsinaisen peliajan päätyttyä. |
 | **Ajan suunta** | Tarkka nouseva aika (`00:00` alkaen kohti erän päättymistä) tai perinteinen laskeva aika (`20:00` kohti nollaa). |
+| **Aika nollasta joka erässä** | Nousevalla kellolla aika jatkuu oletuksena erästä toiseen (0–60 min). Asetuksella jokainen erä alkaa nollasta (0–20 min kolme kertaa). Asetusta voi vaihtaa milloin vain, myös kesken erän. |
 | **Ajan suorasäätö (+ / −)** | Kellon molemmin puolin sijoitetut kookkaat `+` ja `−` -painikkeet minuuteille (`min`) ja sekunneille (`sek`). Tukee kerta-napautusta (1 yksikkö) sekä pitkää painallusta kiihtyvällä säädöllä ilman erillisiä ponnahdusikkunoita. |
 | **Pelikatkon huomiovalo** | Erän ollessa pysähdyksissä (`Tauko`) kellotauluun syttyy huomiota herättävä sykkivä oranssi valokehys ja **PELIKATKO**-tilaruutu. Erätauoilla merkkivalo ei häiritse. |
 | **Saumaton erän päättyminen** | Erän päättyessä ei tule ruutua peittäviä ikkunoita: pääpainike vaihtuu suoraan toimintoon *Aloita erätauko* tai *Seuraava erä*. Aikaa voi myös säätää suoraan taaksepäin (`−`), jos kello ehti käydä liian pitkälle. |
 | **Screen Wake Lock** | Pitää mobiililaitteen tai tietokoneen näytön aktiivisena kellon käydessä sekä pelikatkoilla (tauolla), jottei näyttö sammu kesken erän. Sisältää 15 minuutin suojakatkaisun akun säästämiseksi. |
 | **Maalivahtien torjunnat** | Koti- ja vierasjoukkueen maalivahtien torjuntalaskurit suoraan päänäytöllä. Nopea `+1` / `-1` -kirjaus, tuki maalivahdin vaihdolle ja eräkohtainen torjuntayhteenveto pöytäkirjaa varten. |
+| **Torjuntayhteenveto** | Torjunnat eräkohtaisesti ja yhteensä maalivahdeittain ja joukkueittain. Avautuu napauttamalla torjuntakortin alareunan erä/yhteensä-tietoa tai ottelun päätyttyä *Torjunnat*-painikkeesta. |
 | **Erittäin kookas pääpainike** | Korkea ja leveä alareunan toimintopainike, johon osuu helposti myös vaihtoaitio-olosuhteissa. |
 | **Välilyöntituki** | Välilyöntiä painamalla kello käynnistyy ja pysähtyy nopeasti ilman hiirtä. |
 | **Värinäpalaute (Haptics)** | Värinäpalaute erän päättymisestä ja painalluksista tuetuilla mobiililaitteilla. |

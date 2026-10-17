@@ -72,3 +72,60 @@ export function getTeamLabel(
 ): string {
   return teamData.teamName.trim() || t(language, team);
 }
+
+export interface SavesTableRow {
+  id: string;
+  name: string;
+  /** Saves per regular period; null for a period not played yet */
+  periods: (number | null)[];
+  /** Overtime saves; null when overtime is not played (yet) */
+  overtime: number | null;
+  total: number;
+}
+
+export interface SavesTable {
+  rows: SavesTableRow[];
+  totals: Omit<SavesTableRow, 'id' | 'name'>;
+}
+
+export interface SavesTableOptions {
+  periodCount: number;
+  /** Last regular period that has been reached */
+  playedPeriods: number;
+  overtimePlayed: boolean;
+}
+
+/**
+ * Saves per goalie and period for the summary table, with a totals row.
+ * Periods and overtime not reached yet are null (shown as a dash), unless saves were
+ * recorded there anyway (e.g. after stepping back a period).
+ */
+export function getSavesTable(team: TeamGoalieData, options: SavesTableOptions): SavesTable {
+  const { periodCount, playedPeriods, overtimePlayed } = options;
+
+  const rows: SavesTableRow[] = team.goalies.map((goalie) => ({
+    id: goalie.id,
+    name: goalie.nameOrNumber,
+    periods: Array.from({ length: periodCount }, (_, i) => {
+      const saves = goalie.savesPerPeriod?.[i + 1] || 0;
+      return i + 1 > playedPeriods && saves === 0 ? null : saves;
+    }),
+    overtime: overtimePlayed || (goalie.savesOvertime || 0) > 0 ? goalie.savesOvertime || 0 : null,
+    total: getGoalieTotalSaves(goalie),
+  }));
+
+  const sum = (values: (number | null)[]) => values.reduce<number>((a, v) => a + (v || 0), 0);
+  const allNull = (values: (number | null)[]) => values.every((v) => v === null);
+
+  return {
+    rows,
+    totals: {
+      periods: Array.from({ length: periodCount }, (_, i) => {
+        const column = rows.map((r) => r.periods[i]);
+        return allNull(column) ? null : sum(column);
+      }),
+      overtime: allNull(rows.map((r) => r.overtime)) ? null : sum(rows.map((r) => r.overtime)),
+      total: sum(rows.map((r) => r.total)),
+    },
+  };
+}
