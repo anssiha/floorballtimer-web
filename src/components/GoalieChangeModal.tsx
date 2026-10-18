@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { TeamGoalieData, Language } from '../types/timer';
+import type { TeamGoalieData, GoalieStats, Language } from '../types/timer';
 import { t, formatSaveCount } from '../i18n/translations';
 import { getGoalieTotalSaves, getTeamLabel } from '../utils/goalie';
 import { Modal } from './Modal';
@@ -12,6 +12,8 @@ interface GoalieChangeModalProps {
   language: Language;
   onSelectGoalie: (goalieId: string) => void;
   onAddGoalie: (nameOrNumber: string) => void;
+  onRenameGoalie: (goalieId: string, name: string) => void;
+  onRemoveGoalie: (goalieId: string) => void;
   onRenameTeam: (name: string) => void;
 }
 
@@ -23,9 +25,14 @@ export const GoalieChangeModal: React.FC<GoalieChangeModalProps> = ({
   language,
   onSelectGoalie,
   onAddGoalie,
+  onRenameGoalie,
+  onRemoveGoalie,
   onRenameTeam,
 }) => {
   const [newGoalieInput, setNewGoalieInput] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState('');
+  const [goalieToDelete, setGoalieToDelete] = useState<GoalieStats | null>(null);
 
   if (!isOpen) return null;
 
@@ -38,7 +45,16 @@ export const GoalieChangeModal: React.FC<GoalieChangeModalProps> = ({
     }
   };
 
+  const handleRenameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId && editDraft.trim()) {
+      onRenameGoalie(editingId, editDraft.trim());
+      setEditingId(null);
+    }
+  };
+
   const teamTitle = getTeamLabel(teamData, team, language);
+  const canDelete = teamData.goalies.length > 1;
 
   return (
     <Modal onClose={onClose} className="goalie-modal" ariaLabel={`${teamTitle} – ${t(language, 'switchGoalie')}`}>
@@ -76,22 +92,87 @@ export const GoalieChangeModal: React.FC<GoalieChangeModalProps> = ({
           {teamData.goalies.map((goalie) => {
             const isActive = goalie.id === teamData.activeGoalieId;
             const totalSaves = getGoalieTotalSaves(goalie);
+
+            if (goalie.id === editingId) {
+              return (
+                <form key={goalie.id} className="goalie-row goalie-edit-row" onSubmit={handleRenameSubmit}>
+                  <input
+                    type="text"
+                    value={editDraft}
+                    maxLength={25}
+                    autoFocus
+                    aria-label={t(language, 'renameGoalie')}
+                    onChange={(e) => setEditDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      // Escape cancels only the edit, not the whole dialog
+                      if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setEditingId(null);
+                      }
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className="goalie-icon-btn confirm"
+                    disabled={!editDraft.trim()}
+                    aria-label={t(language, 'saveName')}
+                    title={t(language, 'saveName')}
+                  >
+                    ✓
+                  </button>
+                  <button
+                    type="button"
+                    className="goalie-icon-btn"
+                    onClick={() => setEditingId(null)}
+                    aria-label={t(language, 'cancel')}
+                    title={t(language, 'cancel')}
+                  >
+                    ✕
+                  </button>
+                </form>
+              );
+            }
+
             return (
-              <button
-                key={goalie.id}
-                type="button"
-                className={`goalie-item-btn ${isActive ? 'active' : ''}`}
-                onClick={() => {
-                  onSelectGoalie(goalie.id);
-                  onClose();
-                }}
-              >
-                <span className="goalie-name">{goalie.nameOrNumber}</span>
-                <span className="goalie-badge-saves">
-                  {formatSaveCount(language, totalSaves)}
-                </span>
-                {isActive && <span className="active-tag">✓</span>}
-              </button>
+              <div key={goalie.id} className="goalie-row">
+                <button
+                  type="button"
+                  className={`goalie-item-btn ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    onSelectGoalie(goalie.id);
+                    onClose();
+                  }}
+                >
+                  <span className="goalie-name">{goalie.nameOrNumber}</span>
+                  <span className="goalie-badge-saves">
+                    {formatSaveCount(language, totalSaves)}
+                  </span>
+                  {isActive && <span className="active-tag">✓</span>}
+                </button>
+                <button
+                  type="button"
+                  className="goalie-icon-btn"
+                  onClick={() => {
+                    setEditingId(goalie.id);
+                    setEditDraft(goalie.nameOrNumber);
+                  }}
+                  aria-label={`${t(language, 'renameGoalie')}: ${goalie.nameOrNumber}`}
+                  title={t(language, 'renameGoalie')}
+                >
+                  ✏️
+                </button>
+                <button
+                  type="button"
+                  className="goalie-icon-btn danger"
+                  disabled={!canDelete}
+                  onClick={() => setGoalieToDelete(goalie)}
+                  aria-label={`${t(language, 'deleteGoalie')}: ${goalie.nameOrNumber}`}
+                  title={t(language, 'deleteGoalie')}
+                >
+                  🗑
+                </button>
+              </div>
             );
           })}
         </div>
@@ -116,6 +197,49 @@ export const GoalieChangeModal: React.FC<GoalieChangeModalProps> = ({
           </div>
         </form>
       </div>
+
+      {goalieToDelete && (
+        <Modal
+          onClose={() => setGoalieToDelete(null)}
+          className="confirm-modal"
+          ariaLabel={t(language, 'confirmDeleteGoalieTitle')}
+        >
+          <div className="modal-header">
+            <h3>⚠️ {t(language, 'confirmDeleteGoalieTitle')}</h3>
+            <button
+              type="button"
+              className="modal-close-btn"
+              onClick={() => setGoalieToDelete(null)}
+              aria-label={t(language, 'cancel')}
+            >
+              ✕
+            </button>
+          </div>
+          <div className="confirm-body">
+            <p className="confirm-text">
+              {t(language, 'confirmDeleteGoalieText', {
+                name: goalieToDelete.nameOrNumber,
+                saves: formatSaveCount(language, getGoalieTotalSaves(goalieToDelete)),
+              })}
+            </p>
+            <div className="confirm-actions">
+              <button
+                type="button"
+                className="btn-confirm danger"
+                onClick={() => {
+                  onRemoveGoalie(goalieToDelete.id);
+                  setGoalieToDelete(null);
+                }}
+              >
+                {t(language, 'delete')}
+              </button>
+              <button type="button" className="btn-cancel" onClick={() => setGoalieToDelete(null)}>
+                {t(language, 'cancel')}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </Modal>
   );
 };

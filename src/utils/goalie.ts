@@ -51,15 +51,45 @@ export function getTeamTotalSaves(goalies: GoalieStats[]): number {
 }
 
 /**
- * Saves cleared for a new match; team names and the goalie roster are kept,
- * since the same team (and its goalies) usually plays the next match too.
+ * Goalies and saves reset for a new match: each team is back to a single default goalie
+ * with no saves. Team names are kept, since the same teams often play on.
  */
-export function clearGoalieSaves(saves: GoalieSavesState): GoalieSavesState {
-  const clearTeam = (team: TeamGoalieData): TeamGoalieData => ({
+export function resetGoalieSaves(saves: GoalieSavesState): GoalieSavesState {
+  const defaults = createDefaultGoalieSaves();
+  return {
+    home: { ...defaults.home, teamName: saves.home.teamName },
+    away: { ...defaults.away, teamName: saves.away.teamName },
+  };
+}
+
+/**
+ * Renames a goalie (blank names are ignored so a goalie is never left unlabeled).
+ */
+export function renameGoalieInTeam(
+  team: TeamGoalieData,
+  goalieId: string,
+  nameOrNumber: string
+): TeamGoalieData {
+  const name = nameOrNumber.trim();
+  if (!name) return team;
+  return {
     ...team,
-    goalies: team.goalies.map((g) => ({ ...g, savesPerPeriod: {}, savesOvertime: 0 })),
-  });
-  return { home: clearTeam(saves.home), away: clearTeam(saves.away) };
+    goalies: team.goalies.map((g) => (g.id === goalieId ? { ...g, nameOrNumber: name } : g)),
+  };
+}
+
+/**
+ * Removes a goalie together with their saves. A team always keeps at least one goalie;
+ * if the active goalie is removed, the first remaining one takes over.
+ */
+export function removeGoalieFromTeam(team: TeamGoalieData, goalieId: string): TeamGoalieData {
+  if (team.goalies.length <= 1 || !team.goalies.some((g) => g.id === goalieId)) return team;
+  const goalies = team.goalies.filter((g) => g.id !== goalieId);
+  return {
+    ...team,
+    goalies,
+    activeGoalieId: team.activeGoalieId === goalieId ? goalies[0].id : team.activeGoalieId,
+  };
 }
 
 /**

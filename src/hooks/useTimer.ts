@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { MatchConfig, MatchState, Language, GoalieStats } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
-import { clearGoalieSaves } from '../utils/goalie';
+import { resetGoalieSaves, renameGoalieInTeam, removeGoalieFromTeam } from '../utils/goalie';
 import {
   loadSavedTimerData,
   saveTimerData,
@@ -245,14 +245,14 @@ export function useTimer() {
   }, [config]);
 
   // Reset entire match
-  // Reset entire match: clock back to the start of period 1 and saves cleared.
-  // Team names and goalies are kept for the next match.
+  // Reset entire match: clock back to the start of period 1, goalies and saves reset.
+  // Team names are kept for the next match.
   const resetMatch = useCallback(() => {
     triggerButtonHaptic();
     setIsAlertAcknowledged(true);
     setState((prev) => ({
       ...getDefaultInitialState(config),
-      goalieSaves: clearGoalieSaves(prev.goalieSaves),
+      goalieSaves: resetGoalieSaves(prev.goalieSaves),
     }));
   }, [config]);
 
@@ -495,6 +495,28 @@ export function useTimer() {
     });
   }, []);
 
+  const renameGoalie = useCallback((team: 'home' | 'away', goalieId: string, name: string) => {
+    triggerButtonHaptic();
+    setState((prev) => ({
+      ...prev,
+      goalieSaves: {
+        ...prev.goalieSaves,
+        [team]: renameGoalieInTeam(prev.goalieSaves[team], goalieId, name),
+      },
+    }));
+  }, []);
+
+  const removeGoalie = useCallback((team: 'home' | 'away', goalieId: string) => {
+    triggerButtonHaptic();
+    setState((prev) => ({
+      ...prev,
+      goalieSaves: {
+        ...prev.goalieSaves,
+        [team]: removeGoalieFromTeam(prev.goalieSaves[team], goalieId),
+      },
+    }));
+  }, []);
+
   // Raw value is stored while typing; the display falls back to "Home"/"Away" when empty
   const updateTeamName = useCallback((team: 'home' | 'away', name: string) => {
     setState((prev) => ({
@@ -526,6 +548,8 @@ export function useTimer() {
     removeGoalieSave,
     switchGoalie,
     addGoalie,
+    renameGoalie,
+    removeGoalie,
     updateTeamName,
   };
 }

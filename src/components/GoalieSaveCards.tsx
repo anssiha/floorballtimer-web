@@ -13,6 +13,8 @@ interface GoalieSaveCardsProps {
   onRemoveSave: (team: 'home' | 'away') => void;
   onSwitchGoalie: (team: 'home' | 'away', goalieId: string) => void;
   onAddGoalie: (team: 'home' | 'away', nameOrNumber: string) => void;
+  onRenameGoalie: (team: 'home' | 'away', goalieId: string, name: string) => void;
+  onRemoveGoalie: (team: 'home' | 'away', goalieId: string) => void;
   onRenameTeam: (team: 'home' | 'away', name: string) => void;
 }
 
@@ -24,6 +26,8 @@ export const GoalieSaveCards: React.FC<GoalieSaveCardsProps> = ({
   onRemoveSave,
   onSwitchGoalie,
   onAddGoalie,
+  onRenameGoalie,
+  onRemoveGoalie,
   onRenameTeam,
 }) => {
   const [modalTeam, setModalTeam] = useState<'home' | 'away' | null>(null);
@@ -166,6 +170,8 @@ export const GoalieSaveCards: React.FC<GoalieSaveCardsProps> = ({
           language={language}
           onSelectGoalie={(goalieId) => onSwitchGoalie(modalTeam, goalieId)}
           onAddGoalie={(name) => onAddGoalie(modalTeam, name)}
+          onRenameGoalie={(goalieId, name) => onRenameGoalie(modalTeam, goalieId, name)}
+          onRemoveGoalie={(goalieId) => onRemoveGoalie(modalTeam, goalieId)}
           onRenameTeam={(name) => onRenameTeam(modalTeam, name)}
         />
       )}

@@ -1666,3 +1666,57 @@ input:checked + .slider:before {
 .saves-table .saves-total-cell {
   font-weight: 800;
 }
+
+/* Goalie rows: select button plus edit / delete */
+.goalie-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.goalie-row .goalie-item-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.goalie-icon-btn {
+  flex-shrink: 0;
+  width: 44px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.goalie-icon-btn:hover:not(:disabled) {
+  border-color: var(--text-muted);
+}
+
+.goalie-icon-btn.danger:hover:not(:disabled) {
+  border-color: rgba(255, 80, 80, 0.6);
+}
+
+.goalie-icon-btn.confirm {
+  color: var(--primary-text);
+  font-weight: 900;
+}
+
+.goalie-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.goalie-edit-row input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--primary-text);
+  border-radius: var(--radius-md);
+  padding: 0 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+}

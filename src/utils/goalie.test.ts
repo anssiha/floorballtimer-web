@@ -1,27 +1,62 @@
 import { describe, it, expect } from 'vitest';
 import {
   createDefaultGoalieSaves,
-  clearGoalieSaves,
+  resetGoalieSaves,
+  renameGoalieInTeam,
+  removeGoalieFromTeam,
   getTeamLabel,
   getTeamTotalSaves,
   getSavesTable,
 } from './goalie';
 import { formatSaveCount } from '../i18n/translations';
 
-describe('clearGoalieSaves', () => {
-  it('zeroes all saves but keeps team names and goalies', () => {
+describe('resetGoalieSaves', () => {
+  it('resets goalies and saves but keeps team names', () => {
     const saves = createDefaultGoalieSaves();
     saves.home.teamName = 'Salo';
     saves.home.goalies[0].savesPerPeriod = { 1: 5, 2: 3 };
-    saves.home.goalies[0].savesOvertime = 2;
     saves.home.goalies.push({ id: 'home_2', nameOrNumber: '#30', savesPerPeriod: { 3: 4 } });
+    saves.home.activeGoalieId = 'home_2';
 
-    const cleared = clearGoalieSaves(saves);
+    const reset = resetGoalieSaves(saves);
 
-    expect(getTeamTotalSaves(cleared.home.goalies)).toBe(0);
-    expect(cleared.home.teamName).toBe('Salo');
-    expect(cleared.home.goalies.map((g) => g.nameOrNumber)).toEqual(['#1', '#30']);
-    expect(cleared.home.activeGoalieId).toBe('home_1');
+    expect(reset.home).toEqual({ ...createDefaultGoalieSaves().home, teamName: 'Salo' });
+    expect(reset.away).toEqual(createDefaultGoalieSaves().away);
+  });
+});
+
+describe('renameGoalieInTeam', () => {
+  it('renames one goalie and ignores blank names', () => {
+    const team = createDefaultGoalieSaves().home;
+    team.goalies.push({ id: 'home_2', nameOrNumber: '#30', savesPerPeriod: {} });
+    expect(renameGoalieInTeam(team, 'home_2', '  #31 ').goalies.map((g) => g.nameOrNumber)).toEqual(['#1', '#31']);
+    expect(renameGoalieInTeam(team, 'home_2', '   ')).toBe(team);
+  });
+});
+
+describe('removeGoalieFromTeam', () => {
+  const twoGoalies = () => {
+    const team = createDefaultGoalieSaves().home;
+    team.goalies.push({ id: 'home_2', nameOrNumber: '#30', savesPerPeriod: { 1: 4 } });
+    return team;
+  };
+
+  it('removes the goalie with their saves and keeps the active goalie', () => {
+    const team = { ...twoGoalies(), activeGoalieId: 'home_2' };
+    const result = removeGoalieFromTeam(team, 'home_1');
+    expect(result.goalies.map((g) => g.id)).toEqual(['home_2']);
+    expect(result.activeGoalieId).toBe('home_2');
+    expect(getTeamTotalSaves(result.goalies)).toBe(4);
+  });
+
+  it('hands over to the first remaining goalie when the active one is removed', () => {
+    const result = removeGoalieFromTeam({ ...twoGoalies(), activeGoalieId: 'home_2' }, 'home_2');
+    expect(result.activeGoalieId).toBe('home_1');
+  });
+
+  it('never removes the last goalie', () => {
+    const team = createDefaultGoalieSaves().home;
+    expect(removeGoalieFromTeam(team, 'home_1')).toBe(team);
   });
 });
 

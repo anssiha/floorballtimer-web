@@ -13,7 +13,8 @@ const FOCUSABLE_SELECTOR =
 
 /**
  * Shared dialog shell: backdrop click and Escape close it, Tab/Shift+Tab stay inside it,
- * and focus returns to the element that opened it once it closes.
+ * and focus returns to the element that opened it once it closes (or to the dialog underneath
+ * if that element is gone).
  * Rendered into <body> so a dialog opened from inside another dialog stacks on top of it.
  */
 export const Modal: React.FC<ModalProps> = ({ onClose, className = '', ariaLabel, children }) => {
@@ -67,7 +68,14 @@ export const Modal: React.FC<ModalProps> = ({ onClose, className = '', ariaLabel
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      previouslyFocused?.focus?.();
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus();
+      } else {
+        // The opener is gone (e.g. the row of a goalie just deleted): keep focus in the
+        // dialog underneath, if any, rather than dropping it on the page
+        const dialogs = document.querySelectorAll<HTMLElement>('[aria-modal="true"]');
+        dialogs[dialogs.length - 1]?.focus();
+      }
     };
   }, []);
 

@@ -26,6 +26,8 @@ export const App: React.FC = () => {
     removeGoalieSave,
     switchGoalie,
     addGoalie,
+    renameGoalie,
+    removeGoalie,
     updateTeamName,
   } = useTimer();
 
@@ -87,6 +89,8 @@ export const App: React.FC = () => {
             onRemoveSave={removeGoalieSave}
             onSwitchGoalie={switchGoalie}
             onAddGoalie={addGoalie}
+            onRenameGoalie={renameGoalie}
+            onRemoveGoalie={removeGoalie}
             onRenameTeam={updateTeamName}
           />
         )}

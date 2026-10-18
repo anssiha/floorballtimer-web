@@ -97,7 +97,7 @@ Pääpainikkeen vieressä on **Korjaa**-painike, josta avautuu valikko pelin aik
 Koko ottelun nollaus:
 - Kun ottelu on päättynyt, pääpainikkeeksi vaihtuu **Uusi ottelu**.
 - Kesken ottelun koko ottelun voi nollata asetuksista (**Nollaa koko ottelu**).
-- Uusi ottelu nollaa kellon ja torjunnat. Joukkueiden nimet ja maalivahdit säilyvät.
+- Uusi ottelu nollaa kellon, maalivahdit ja torjunnat. Joukkueiden nimet säilyvät.
 
 > Kaikki nollaustoiminnot kysyvät varmistuksen ennen toimenpidettä.
 
@@ -115,7 +115,9 @@ Kun torjuntalaskuri on käytössä:
 - **Vaihda maalivahti:** Napauta joukkueen maalivahtipainiketta (esim. `🥅 #1 ▾`). Avautuvasta valikosta voit:
   - Valita joukkueen toisen aiemmin pelanneen maalivahdin.
   - Lisätä uuden maalivahdin numeron tai nimen (esim. `#30`), jolloin torjunnat alkavat kertyä tälle maalivahdille.
-- **Eräkohtainen torjuntayhteenveto:** Korttien alareunassa näkyy kuluvan erän numero ja joukkueen kokonaistorjunnat; maalivahtivalikossa näkyvät maalivahtikohtaiset kokonaismäärät.
+  - Muokata maalivahdin nimeä tai numeroa (✏️).
+  - Poistaa vahingossa lisätyn maalivahdin (🗑). Poisto kysyy varmistuksen, ja maalivahdin torjunnat poistuvat samalla. Joukkueelle jää aina vähintään yksi maalivahti.
+- **Eräkohtainen torjuntayhteenveto:** Korttien alareunassa näkyy kuluvan erän numero ja joukkueen kokonaistorjunnat. Napauttamalla tietoa avautuu taulukko torjunnoista erittäin ja yhteensä; maalivahtivalikossa näkyvät maalivahtikohtaiset kokonaismäärät.
 
 ---
 
