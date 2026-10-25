@@ -1,6 +1,7 @@
 import type { SavedTimerData, MatchConfig, MatchState, Language } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
 import { createDefaultGoalieSaves } from '../utils/goalie';
+import { createDefaultScore } from '../utils/score';
 import { getStageClock, advanceClock } from '../utils/timerMath';
 
 const STORAGE_KEY = 'floorball_timer_v3';
@@ -32,6 +33,12 @@ export function loadSavedTimerData(): SavedTimerData | null {
       }
       if (parsed.config && parsed.config.trackGoalieSaves === undefined) {
         parsed.config.trackGoalieSaves = true;
+      }
+      if (parsed.config && parsed.config.trackScore === undefined) {
+        parsed.config.trackScore = false;
+      }
+      if (parsed.state && !parsed.state.score) {
+        parsed.state.score = createDefaultScore();
       }
       if (parsed.state && !parsed.state.goalieSaves) {
         parsed.state.goalieSaves = createDefaultGoalieSaves();
@@ -119,5 +126,6 @@ export function getDefaultInitialState(config: MatchConfig = DEFAULT_CONFIG): Ma
     remainingMs: clock.startMs,
     totalDurationMs: clock.durationMs,
     goalieSaves: createDefaultGoalieSaves(),
+    score: createDefaultScore(),
   };
 }

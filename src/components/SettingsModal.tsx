@@ -281,6 +281,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <h4 className="settings-section-title">{t(language, 'sectionTracking')}</h4>
 
         <ToggleRow
+          label={t(language, 'trackScore')}
+          checked={config.trackScore}
+          onChange={(checked) => onUpdateConfig({ trackScore: checked })}
+        />
+
+        <ToggleRow
           label={t(language, 'trackGoalieSaves')}
           checked={config.trackGoalieSaves}
           onChange={(checked) => onUpdateConfig({ trackGoalieSaves: checked })}

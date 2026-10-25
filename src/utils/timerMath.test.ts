@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { MatchConfig, MatchState } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
 import { createDefaultGoalieSaves } from './goalie';
+import { createDefaultScore } from './score';
 import {
   getStageClock,
   advanceClock,
@@ -34,6 +35,7 @@ function makeState(overrides: Partial<MatchState>): MatchState {
     remainingMs: 0,
     totalDurationMs: 20 * MIN,
     goalieSaves: createDefaultGoalieSaves(),
+    score: createDefaultScore(),
     ...overrides,
   };
 }

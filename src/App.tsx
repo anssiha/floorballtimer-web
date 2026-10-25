@@ -5,6 +5,7 @@ import { TimerDisplay } from './components/TimerDisplay';
 import { Controls } from './components/Controls';
 import { SettingsModal } from './components/SettingsModal';
 import { GoalieSaveCards } from './components/GoalieSaveCards';
+import { ScoreBoard } from './components/ScoreBoard';
 import './App.css';
 
 export const App: React.FC = () => {
@@ -29,6 +30,8 @@ export const App: React.FC = () => {
     renameGoalie,
     removeGoalie,
     updateTeamName,
+    addGoal,
+    removeGoal,
   } = useTimer();
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -71,6 +74,17 @@ export const App: React.FC = () => {
       />
 
       <main className="main-content">
+        {config.trackScore && (
+          <ScoreBoard
+            state={state}
+            config={config}
+            language={language}
+            onAddGoal={addGoal}
+            onRemoveGoal={removeGoal}
+            onRenameTeam={updateTeamName}
+          />
+        )}
+
         <TimerDisplay
           state={state}
           config={config}

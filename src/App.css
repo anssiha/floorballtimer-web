@@ -1113,9 +1113,205 @@ input:checked + .slider:before {
   100% { transform: scale(1); }
 }
 
+/* ==========================================================================
+   Score strip (above the timer, deliberately smaller than the clock)
+   ========================================================================== */
+.scoreboard {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto 10px auto;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.score-team {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 8px 8px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.score-team-home {
+  border-color: rgba(var(--team-home-rgb), 0.25);
+}
+
+.score-team-away {
+  border-color: rgba(var(--team-away-rgb), 0.3);
+}
+
+.score-team-name {
+  min-width: 0;
+  min-height: 28px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.score-team-home .score-team-name {
+  text-align: left;
+}
+
+.score-team-away .score-team-name {
+  text-align: right;
+}
+
+/* Score sits next to the center separator, -1 on the outer edge */
+.score-team-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.score-team-home .score-team-row {
+  flex-direction: row-reverse;
+}
+
+.btn-goal-plus {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #182836 0%, #121c27 100%);
+  border: 1px solid rgba(var(--team-home-rgb), 0.35);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.score-team-away .btn-goal-plus {
+  background: linear-gradient(135deg, #241c38 0%, #191428 100%);
+  border-color: rgba(var(--team-away-rgb), 0.4);
+}
+
+.btn-goal-plus:hover {
+  filter: brightness(1.12);
+}
+
+.btn-goal-plus:active {
+  transform: scale(0.97);
+  filter: brightness(1.25);
+}
+
+.score-num {
+  display: inline-block;
+  font-size: 2.2rem;
+  font-weight: 900;
+  font-family: var(--font-timer);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.goal-plus-label {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--go);
+}
+
+.btn-goal-minus {
+  flex-shrink: 0;
+  min-width: 40px;
+  padding: 0 6px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.btn-goal-minus:hover:not(:disabled) {
+  background: rgba(var(--danger-rgb), 0.15);
+  color: var(--danger-text);
+  border-color: rgba(var(--danger-rgb), 0.3);
+}
+
+.btn-goal-minus:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.btn-goal-minus:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.score-separator {
+  flex-shrink: 0;
+  align-self: center;
+  min-width: 28px;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--text-dim);
+}
+
+.saves-table .score-summary-home th {
+  color: rgb(var(--team-home-rgb));
+}
+
+.saves-table .score-summary-away th {
+  color: rgb(var(--team-away-rgb));
+}
+
 /* Shorter portrait screens (e.g. iPhone SE / 8): tighten the layout so the
    controls stay on screen */
 @media (orientation: portrait) and (max-height: 700px) {
+  .scoreboard {
+    margin-bottom: 6px;
+  }
+
+  .score-team {
+    padding: 2px 6px 6px 6px;
+    gap: 2px;
+  }
+
+  .score-team-name {
+    min-height: 24px;
+    font-size: 0.72rem;
+  }
+
+  .btn-goal-plus {
+    min-height: 42px;
+  }
+
+  .score-num {
+    font-size: 1.7rem;
+  }
+
   .main-content {
     padding-top: 8px;
   }
@@ -1380,6 +1576,77 @@ input:checked + .slider:before {
     height: clamp(38px, 6vw, 48px);
   }
 
+  /* Score strip on top of the left column, timer and goalie cards move down a row */
+  .main-content:has(.scoreboard) {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .main-content:has(.scoreboard):not(:has(.goalie-saves-container)) {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .main-content:has(.scoreboard) .scoreboard {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .main-content:has(.scoreboard) .timer-display-container {
+    grid-row: 2;
+  }
+
+  .main-content:has(.scoreboard) .goalie-saves-container {
+    grid-row: 3;
+  }
+
+  .scoreboard {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 6px;
+  }
+
+  .score-team {
+    flex-direction: row;
+    align-items: center;
+    padding: 3px 6px;
+    gap: 6px;
+    border-radius: var(--radius-sm);
+  }
+
+  .score-team-away {
+    flex-direction: row-reverse;
+  }
+
+  .score-team-name {
+    flex: 1;
+    min-height: 30px;
+    font-size: 0.68rem;
+  }
+
+  .score-team-row {
+    flex-shrink: 0;
+  }
+
+  .btn-goal-plus {
+    min-height: 36px;
+    min-width: 56px;
+    padding: 2px 6px;
+  }
+
+  .score-num {
+    font-size: 1.4rem;
+  }
+
+  .btn-goal-minus {
+    min-width: 36px;
+  }
+
+  .score-separator {
+    min-width: 18px;
+    min-height: 36px;
+    font-size: 1.2rem;
+  }
+
   /* Left Column Top: Timer Display */
   .timer-display-container {
     grid-column: 1;
@@ -1555,7 +1822,7 @@ input:checked + .slider:before {
   /* Right Column: Controls Spanning Full Height */
   .controls-container {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1 / -1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

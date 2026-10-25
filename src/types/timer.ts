@@ -19,6 +19,7 @@ export interface MatchConfig {
   hapticsEnabled: boolean;
   keepAwakeOnPause: boolean;
   trackGoalieSaves: boolean;
+  trackScore: boolean;
 }
 
 export interface GoalieStats {
@@ -39,6 +40,16 @@ export interface GoalieSavesState {
   away: TeamGoalieData;
 }
 
+export interface TeamScore {
+  goalsPerPeriod: Record<number, number>;
+  goalsOvertime?: number;
+}
+
+export interface ScoreState {
+  home: TeamScore;
+  away: TeamScore;
+}
+
 export interface MatchState {
   status: TimerStatus;
   stage: StageType;
@@ -46,6 +57,7 @@ export interface MatchState {
   remainingMs: number;
   totalDurationMs: number;
   goalieSaves: GoalieSavesState;
+  score: ScoreState;
 }
 
 export interface SavedTimerData {

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import type { MatchConfig, MatchState, Language, GoalieStats } from '../types/timer';
 import { DEFAULT_CONFIG } from '../constants/presets';
 import { resetGoalieSaves, renameGoalieInTeam, removeGoalieFromTeam } from '../utils/goalie';
+import { changeGoals, resetStageGoals } from '../utils/score';
 import {
   loadSavedTimerData,
   saveTimerData,
@@ -65,7 +66,8 @@ export function useTimer() {
       last.state.status === state.status &&
       last.state.stage === state.stage &&
       last.state.currentPeriod === state.currentPeriod &&
-      last.state.goalieSaves === state.goalieSaves;
+      last.state.goalieSaves === state.goalieSaves &&
+      last.state.score === state.score;
     if (onlyClockTicked && now - last.at < 1000) return;
     saveTimerData(config, state, language);
     lastSaveRef.current = { at: now, config, state, language };
@@ -240,12 +242,20 @@ export function useTimer() {
                 away: { ...prev.goalieSaves.away, goalies: prev.goalieSaves.away.goalies.map(resetGoalie) },
               }
             : prev.goalieSaves,
+        // Same rule for goals: a break has none of its own
+        score:
+          prev.stage !== 'BREAK'
+            ? {
+                home: resetStageGoals(prev.score.home, prev.stage, prev.currentPeriod),
+                away: resetStageGoals(prev.score.away, prev.stage, prev.currentPeriod),
+              }
+            : prev.score,
       };
     });
   }, [config]);
 
   // Reset entire match
-  // Reset entire match: clock back to the start of period 1, goalies and saves reset.
+  // Reset entire match: clock back to the start of period 1, goalies, saves and score reset.
   // Team names are kept for the next match.
   const resetMatch = useCallback(() => {
     triggerButtonHaptic();
@@ -365,6 +375,21 @@ export function useTimer() {
     triggerButtonHaptic();
     setLanguageState(lang);
   }, []);
+
+  // Score actions: +1 / -1 goal for a team in the current period (or overtime)
+  const changeScore = useCallback((team: 'home' | 'away', delta: number) => {
+    triggerButtonHaptic();
+    setState((prev) => ({
+      ...prev,
+      score: {
+        ...prev.score,
+        [team]: changeGoals(prev.score[team], prev.stage, prev.currentPeriod, delta),
+      },
+    }));
+  }, []);
+
+  const addGoal = useCallback((team: 'home' | 'away') => changeScore(team, 1), [changeScore]);
+  const removeGoal = useCallback((team: 'home' | 'away') => changeScore(team, -1), [changeScore]);
 
   // Goalie save actions
   const addGoalieSave = useCallback((team: 'home' | 'away') => {
@@ -551,5 +576,7 @@ export function useTimer() {
     renameGoalie,
     removeGoalie,
     updateTeamName,
+    addGoal,
+    removeGoal,
   };
 }
