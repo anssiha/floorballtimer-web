@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTimer } from './hooks/useTimer';
+import { useUpdateAvailable } from './hooks/useUpdateAvailable';
 import { Header } from './components/Header';
+import { UpdateBanner } from './components/UpdateBanner';
 import { TimerDisplay } from './components/TimerDisplay';
 import { Controls } from './components/Controls';
 import { SettingsModal } from './components/SettingsModal';
@@ -35,6 +37,7 @@ export const App: React.FC = () => {
   } = useTimer();
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const updateAvailable = useUpdateAvailable();
 
   // Keyboard shortcut: Spacebar toggles start/pause, whichever button has focus.
   // Without this, Space would "click" the last tapped button (e.g. Reset) instead.
@@ -72,6 +75,9 @@ export const App: React.FC = () => {
         language={language}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
       />
+
+      {/* Hidden while the clock runs, so a tap during play can't reload the app */}
+      {updateAvailable && state.status !== 'RUNNING' && <UpdateBanner language={language} />}
 
       <main className="main-content">
         {config.trackScore && (

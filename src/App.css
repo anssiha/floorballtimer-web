@@ -85,6 +85,43 @@
   background: var(--bg-surface-elevated);
 }
 
+/* "New version available" banner between header and main content */
+.update-banner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0 0 0;
+  padding: 6px 6px 6px 14px;
+  background: rgba(var(--primary-rgb), 0.14);
+  border: 1px solid rgba(var(--primary-rgb), 0.4);
+  border-radius: var(--radius-md);
+}
+
+.update-banner-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.update-banner-btn {
+  min-height: 40px;
+  padding: 0 16px;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--on-primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.update-banner-btn:active {
+  transform: scale(0.96);
+}
+
 /* Main Content Area */
 .main-content {
   flex: 1;
@@ -1513,7 +1550,10 @@ input:checked + .slider:before {
 /* ==========================================================================
    Responsive Landscape / Mobile Horizontal Mode (Must be at end for cascade)
    ========================================================================== */
-@media (orientation: landscape) and (max-height: 650px) {
+/* Landscape screens up to 900px tall (phones, tablets and desktop browser windows) use the
+   two-column layout; the stacked layout needs more height than that once the score strip
+   and goalie cards are on screen. */
+@media (orientation: landscape) and (max-height: 900px) {
   .app-container {
     padding: env(safe-area-inset-top, 4px) env(safe-area-inset-right, 14px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 14px);
     max-width: 100%;
@@ -1858,7 +1898,10 @@ input:checked + .slider:before {
     padding: 0 8px;
     border-radius: var(--radius-sm);
   }
+}
 
+/* Short landscape screens: the settings dialog must fit under the screen height */
+@media (orientation: landscape) and (max-height: 650px) {
   .settings-modal {
     height: min(390px, 94vh);
     height: min(390px, calc(100dvh - 20px));
