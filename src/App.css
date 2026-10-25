@@ -1617,26 +1617,24 @@ input:checked + .slider:before {
     height: clamp(38px, 6vw, 48px);
   }
 
-  /* Score strip on top of the left column, timer and goalie cards move down a row */
+  /* Score strip sits at the bottom of the right column, level with the goalie cards, so the
+     timer and the big start button share the same top edge. Without goalie cards the strip
+     gets a row of its own and the timer spans both rows. */
   .main-content:has(.scoreboard) {
-    grid-template-rows: auto minmax(0, 1fr) auto;
-  }
-
-  .main-content:has(.scoreboard):not(:has(.goalie-saves-container)) {
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   .main-content:has(.scoreboard) .scoreboard {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .main-content:has(.scoreboard) .timer-display-container {
+    grid-column: 2;
     grid-row: 2;
   }
 
-  .main-content:has(.scoreboard) .goalie-saves-container {
-    grid-row: 3;
+  .main-content:has(.scoreboard) .controls-container {
+    grid-row: 1;
+  }
+
+  .main-content:has(.scoreboard):not(:has(.goalie-saves-container)) .timer-display-container {
+    grid-row: 1 / -1;
   }
 
   .scoreboard {
@@ -1647,35 +1645,27 @@ input:checked + .slider:before {
   }
 
   .score-team {
-    flex-direction: row;
-    align-items: center;
-    padding: 3px 6px;
-    gap: 6px;
+    padding: 2px 6px 5px 6px;
+    gap: 2px;
     border-radius: var(--radius-sm);
   }
 
-  .score-team-away {
-    flex-direction: row-reverse;
-  }
-
   .score-team-name {
-    flex: 1;
-    min-height: 30px;
+    min-height: 22px;
     font-size: 0.68rem;
   }
 
   .score-team-row {
-    flex-shrink: 0;
+    flex: 1;
   }
 
   .btn-goal-plus {
-    min-height: 36px;
-    min-width: 56px;
+    min-height: 38px;
     padding: 2px 6px;
   }
 
   .score-num {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
   }
 
   .btn-goal-minus {
@@ -1684,7 +1674,6 @@ input:checked + .slider:before {
 
   .score-separator {
     min-width: 18px;
-    min-height: 36px;
     font-size: 1.2rem;
   }
 
