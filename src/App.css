@@ -1324,9 +1324,10 @@ input:checked + .slider:before {
   color: rgb(var(--team-away-rgb));
 }
 
-/* Shorter portrait screens (e.g. iPhone SE / 8): tighten the layout so the
-   controls stay on screen */
-@media (orientation: portrait) and (max-height: 700px) {
+/* Shorter portrait screens (e.g. iPhone SE / 8, or a tall phone's app window under the
+   status bar): tighten the layout so the timer, score strip, goalie cards and controls
+   all fit. The normal layout needs about 800px with the score strip on. */
+@media (orientation: portrait) and (max-height: 800px) {
   .scoreboard {
     margin-bottom: 6px;
   }
